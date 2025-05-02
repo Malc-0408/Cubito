@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUBITO LUKERS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            background-color: #0078ff;
+            color: white;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+        
+        .logo span {
+            color: #0078ff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .toggle-switch {
+            position: absolute;
+            right: 20px;
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 30px;
+            padding: 5px;
+            cursor: pointer;
+        }
+        
+        .toggle-switch-handle {
+            position: absolute;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+        }
+        
+        .toggle-switch::before {
+            content: "☀️";
+            position: absolute;
+            left: 10px;
+            top: 7px;
+            font-size: 16px;
+        }
+        
+        body.dark-mode .toggle-switch::before {
+            content: "🌙";
+        }
+        
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .left-panel, .right-panel {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 48%;
+        }
+        
+        h2 {
+            color: #333;
+            margin-top: 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h3 {
+            color: #333;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            background-color: #0078ff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .table th {
+            background-color: #f9f9f9;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn-container .btn {
+            width: 48%;
+        }
+        
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+        }
+        
+        .nav-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background-color: #f5f7fa;
+            border: 1px solid #ddd;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #loading {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #0078ff;
+        }
+        
+        #verticalTableContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f5f7fa;
+            z-index: 1000;
+            padding: 20px;
+            display: none;
+            overflow: auto;
+        }
+        
+        #verticalTableContainer .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        #verticalTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        #verticalTable th, #verticalTable td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        #verticalTable th {
+            background-color: #f9f9f9;
+            position: sticky;
+            top: 0;
+        }
+        
+        .dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .left-panel, .dark-mode .right-panel, .dark-mode .footer-nav {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode h2, .dark-mode h3, .dark-mode .form-group label {
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .table th {
+            background-color: #333;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .form-control {
+            background-color: #333;
+            color: #f0f0f0;
+            border-color: #555;
+        }
+        
+        .dark-mode .btn {
+            background-color: #333;
+        }
+        
+        .dark-mode #verticalTableContainer {
+            background-color: #121212;
+        }
+        
+        .dark-mode #verticalTable th {
+            background-color: #333;
+            color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-container">
+            <div class="logo">
+                <span>Lukers</span>
+            </div>
+            <div class="title">CUBITO LUKERS</div>
+        </div>
+        <div class="toggle-switch" id="toggle-theme">
+            <div class="toggle-switch-handle"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <h2>Sube tu archivo Excel</h2>
+            
+            <div class="form-group">
+                <label>Archivo Excel (.xlsx, .xls)</label>
+                <input type="file" id="fileInput" class="form-control" accept=".xlsx, .xls">
+            </div>
+            
+            <div class="form-group">
+                <label>Selecciona la hoja</label>
+                <select id="sheetSelect" class="form-control" disabled>
+                    <option value="">Seleccione una hoja</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Columna de inicio</label>
+                <input type="number" id="startColumn" class="form-control" placeholder="Ej: 2 para columna 'B'" disabled>
+            </div>
+            
+            <div class="form-group">
+                <label>Texto de Cabecera</label>
+                <input type="text" id="textoCabecera" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label>Fecha</label>
+                <input type="text" id="fecha" class="form-control" placeholder="DD/MM/AAAA">
+            </div>
+            
+            <div class="form-group">
+                <label>Fecha de Entrega</label>
+                <input type="text" id="fechaEntrega" class="form-control" placeholder="DD/MM/AAAA">
+            </div>
+            
+            <button id="processBtn" class="btn" disabled>Verticalizar</button>
+            <div id="loading" class="hidden">Procesando datos...</div>
+        </div>
+        
+        <div class="right-panel">
+            <h2>Resumen de Tiendas</h2>
+            
+            <table id="summaryTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Tienda</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td id="totalCantidad"></td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <h3>Datos Verticalizados</h3>
+            
+            <div class="btn-container">
+                <button id="showVerticalBtn" class="btn hidden">Visualizar</button>
+                <button id="downloadVerticalBtn" class="btn hidden">Descargar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="verticalTableContainer">
+        <div class="header">
+            <h2>Datos Verticalizados</h2>
+            <div>
+                <button id="copyTableBtn" class="btn" style="width: auto; padding: 10px 20px; margin-right: 10px;">Copiar Tabla</button>
+                <button id="backBtn" class="btn" style="width: auto; padding: 10px 20px;">Volver</button>
+            </div>
+        </div>
+        <table id="verticalTable">
+        </table>
+    </div>
+      <script>
+        // Configuración de tema oscuro/claro
+        function toggleMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            document.getElementById('toggle-theme').addEventListener('click', toggleMode);
+        });
+
+        // Variables globales
+        let workbook, outputData = [];
+
+        // Mapeo de tiendas y sus configuraciones
+        const tiendaMapping = {
+            "LUKERS EL SOL": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R501", Almacen: "PT01", Solicitante: "R501", AlmacenProcedencia: "PT01" },
+            "LUKERS MENDIOLA": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R502", Almacen: "PT01", Solicitante: "R502", AlmacenProcedencia: "PT01" },
+            "LUKERS PROLONGACIÓN IQUITOS": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R504", Almacen: "PT01", Solicitante: "R504", AlmacenProcedencia: "PT01" },
+            "LUKERS LA MARINA": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R503", Almacen: "PT01", Solicitante: "R503", AlmacenProcedencia: "PT01" },
+            "LUKERS ALFONSO UGARTE": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R505", Almacen: "PT01", Solicitante: "R505", AlmacenProcedencia: "PT01" },
+            "LUKERS TRU PIZARRO": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R506", Almacen: "PT01", Solicitante: "R506", AlmacenProcedencia: "PT01" },
+            "LUKERS TARAPOTO": { Clase: "Z008", Proveedor: "RD50", OrgCompra: "R040", GrupoCompra: "104", Sociedad: "R040", CondPago: "P030", PrecioNeto: "", CentroTienda: "R402", Almacen: "PT01", Solicitante: "R402", AlmacenProcedencia: "PT01" },
+            "LUKERS IQT LORES": { Clase: "Z008", Proveedor: "RD50", OrgCompra: "R040", GrupoCompra: "104", Sociedad: "R040", CondPago: "P030", PrecioNeto: "", CentroTienda: "R401", Almacen: "PT01", Solicitante: "R401", AlmacenProcedencia: "PT01" },
+            "LUKERS CHI P. RUIZ": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R510", Almacen: "PT01", Solicitante: "R510", AlmacenProcedencia: "PT01" }
+        };
+
+        // Manejo de carga de archivo Excel
+        document.getElementById("fileInput").addEventListener("change", e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                workbook = XLSX.read(evt.target.result, { type: 'binary' });
+                const sheetSelect = document.getElementById("sheetSelect");
+                sheetSelect.innerHTML = "";
+                workbook.SheetNames.forEach((name, i) => {
+                    sheetSelect.innerHTML += `<option value="${i}">${name}</option>`;
+                });
+                sheetSelect.disabled = false;
+                document.getElementById("startColumn").disabled = false;
+                document.getElementById("processBtn").disabled = false;
+            };
+            reader.readAsBinaryString(file);
+        });
+
+        // Procesar datos al hacer clic en el botón
+        document.getElementById("processBtn").addEventListener("click", () => {
+            document.getElementById("loading").classList.remove("hidden");
+            setTimeout(() => {
+                outputData = [];
+                const sheetIndex = document.getElementById("sheetSelect").value;
+                const startColumn = parseInt(document.getElementById("startColumn").value);
+                const textoCabecera = document.getElementById("textoCabecera").value;
+                const fecha = document.getElementById("fecha").value;
+                const fechaEntrega = document.getElementById("fechaEntrega").value;
+
+                if (!sheetIndex || isNaN(startColumn)) {
+                    alert("Selecciona hoja y columna válida");
+                    document.getElementById("loading").classList.add("hidden");
+                    return;
+                }
+
+                const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[sheetIndex]], {header:1});
+                for (let i = 1; i < data.length; i++) {
+                    const material = data[i][0];
+                    for (let j = startColumn; j < data[0].length; j++) {
+                        const tienda = data[0][j];
+                        const cantidad = data[i][j];
+                        if (cantidad && tiendaMapping[tienda]) {
+                            const m = tiendaMapping[tienda];
+                            outputData.push({
+                                TIENDAS: tienda, Ind: "", Clase: m.Clase, Proveedor: m.Proveedor, FechaDocCompra: fecha,
+                                OrgCompra: m.OrgCompra, GrupoCompra: m.GrupoCompra, Sociedad: m.Sociedad, CondPago: m.CondPago,
+                                TextoCabecera: textoCabecera, Material: material, Cantidad: cantidad, PrecioNeto: m.PrecioNeto,
+                                CentroTienda: m.CentroTienda, Almacen: m.Almacen, Solicitante: m.Solicitante, AlmacenProcedencia: m.AlmacenProcedencia,
+                                FechaEntrega: fechaEntrega
+                            });
+                        }
+                    }
+                }
+
+                // Ordenamos y establecemos indicador H/D
+                outputData.sort((a, b) => a.TIENDAS.localeCompare(b.TIENDAS));
+                let current = "";
+                outputData.forEach(row => {
+                    row.Ind = row.TIENDAS !== current ? "H" : "D";
+                    current = row.TIENDAS;
+                });
+
+                // Construir la tabla de resumen
+                const summary = {};
+                let total = 0;
+                outputData.forEach(r => {
+                    summary[r.TIENDAS] = (summary[r.TIENDAS] || 0) + Number(r.Cantidad);
+                    total += Number(r.Cantidad);
+                });
+                const tbody = document.querySelector("#summaryTable tbody");
+                tbody.innerHTML = Object.entries(summary).map(([tienda, cant]) => `<tr><td>${tienda}</td><td>${cant}</td></tr>`).join("");
+                document.getElementById("totalCantidad").textContent = total;
+
+                // Construir la tabla vertical
+                const verticalTable = document.getElementById("verticalTable");
+                if (outputData.length > 0) {
+                    verticalTable.innerHTML = `<thead><tr>${Object.keys(outputData[0]).map(h => `<th>${h}</th>`).join("")}</tr></thead>` +
+                        `<tbody>${outputData.map(row => `<tr>${Object.values(row).map(val => `<td>${val}</td>`).join("")}</tr>`).join("")}</tbody>`;
+                }
+
+                document.getElementById("loading").classList.add("hidden");
+                document.getElementById("showVerticalBtn").classList.remove("hidden");
+                document.getElementById("downloadVerticalBtn").classList.remove("hidden");
+            }, 300);
+        });
+
+        // Mostrar tabla verticalizada
+        document.getElementById("showVerticalBtn").addEventListener("click", () => {
+            document.getElementById("verticalTableContainer").style.display = "block";
+        });
+
+        // Volver desde la vista de tabla
+        document.getElementById("backBtn").addEventListener("click", () => {
+            document.getElementById("verticalTableContainer").style.display = "none";
+        });
+
+        // Descargar Excel verticalizado
+        document.getElementById("downloadVerticalBtn").addEventListener("click", downloadExcel);
+
+        // Copiar tabla al portapapeles
+        document.getElementById("copyTableBtn").addEventListener("click", copyTableToClipboard);
+
+        function copyTableToClipboard() {
+            const table = document.getElementById("verticalTable");
+            
+            // Crear una tabla temporal en memoria
+            let tableText = "";
+            
+            // Encabezados
+            const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent);
+            tableText += headers.join("\t") + "\n";
+            
+            // Filas
+            const rows = table.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll("td")).map(td => td.textContent);
+                tableText += cells.join("\t") + "\n";
+            });
+            
+            // Usar la API del portapapeles si está disponible
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(tableText)
+                    .then(() => {
+                        alert("Tabla copiada al portapapeles");
+                    })
+                    .catch(err => {
+                        console.error('Error al copiar tabla: ', err);
+                        fallbackCopyMethod(tableText);
+                    });
+            } else {
+                fallbackCopyMethod(tableText);
+            }
+        }
+        
+        function fallbackCopyMethod(text) {
+            // Método alternativo para navegadores que no soportan clipboard API
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert("Tabla copiada al portapapeles");
+                } else {
+                    console.error('Fallback: No se pudo copiar al portapapeles');
+                }
+            } catch (err) {
+                console.error('Fallback: Error al copiar tabla', err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function downloadExcel() {
+            const ws = XLSX.utils.json_to_sheet(outputData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Verticalizado');
+            XLSX.writeFile(wb, 'Datos_Verticalizados.xlsx');
+        }
+    </script>
+</body>
+</html>
