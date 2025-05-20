@@ -274,6 +274,49 @@
             background-color: #333;
             color: #f0f0f0;
         }
+        
+        /* Estilos para selector de sociedad */
+        #societySelector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #societySelectorContent {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 350px;
+            text-align: center;
+        }
+        
+        .dark-mode #societySelectorContent {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+        
+        .society-btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 15px;
+            background-color: #0078ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .dark-mode .society-btn {
+            background-color: #333;
+        }
     </style>
 </head>
 <body>
@@ -317,12 +360,17 @@
             
             <div class="form-group">
                 <label>Fecha</label>
-                <input type="text" id="fecha" class="form-control" placeholder="DD/MM/AAAA">
+                <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA">
             </div>
             
             <div class="form-group">
-                <label>Fecha de Entrega</label>
-                <input type="text" id="fechaEntrega" class="form-control" placeholder="DD/MM/AAAA">
+                <label>Fecha de Entrega (R050)</label>
+                <input type="text" id="fechaEntregaR050" class="form-control" placeholder="DD.MM.AAAA">
+            </div>
+            
+            <div class="form-group">
+                <label>Fecha de Entrega (R040)</label>
+                <input type="text" id="fechaEntregaR040" class="form-control" placeholder="DD.MM.AAAA">
             </div>
             
             <button id="processBtn" class="btn" disabled>Verticalizar</button>
@@ -369,7 +417,18 @@
         <table id="verticalTable">
         </table>
     </div>
-      <script>
+    
+    <!-- Selector de Sociedad -->
+    <div id="societySelector">
+        <div id="societySelectorContent">
+            <h2>Seleccione Sociedad a Visualizar</h2>
+            <button class="society-btn" data-society="R050">Sociedad R050</button>
+            <button class="society-btn" data-society="R040">Sociedad R040</button>
+            <button class="society-btn" data-society="TODAS">Todas las Sociedades</button>
+        </div>
+    </div>
+    
+    <script>
         // Configuración de tema oscuro/claro
         function toggleMode() {
             document.body.classList.toggle('dark-mode');
@@ -382,6 +441,16 @@
             }
             
             document.getElementById('toggle-theme').addEventListener('click', toggleMode);
+            
+            // Inicializar fecha actual en formato DD.MM.AAAA
+            const hoy = new Date();
+            const dia = String(hoy.getDate()).padStart(2, '0');
+            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+            const anio = hoy.getFullYear();
+            document.getElementById('fecha').value = `${dia}.${mes}.${anio}`;
+            
+            // Calcular fechas de entrega iniciales
+            calcularFechasEntrega();
         });
 
         // Variables globales
@@ -400,6 +469,36 @@
             "LUKERS CHI P. RUIZ": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R510", Almacen: "PT01", Solicitante: "R510", AlmacenProcedencia: "PT01" }
         };
 
+        // Función para agregar días a una fecha
+        function addDaysToDate(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+        
+        // Función para formatear fecha en DD.MM.AAAA
+        function formatDate(date) {
+            const dia = String(date.getDate()).padStart(2, '0');
+            const mes = String(date.getMonth() + 1).padStart(2, '0');
+            const anio = date.getFullYear();
+            return `${dia}.${mes}.${anio}`;
+        }
+        
+        // Calcular fechas de entrega para ambas sociedades
+        function calcularFechasEntrega() {
+            const fechaActual = new Date();
+            const plazoR050 = formatDate(addDaysToDate(fechaActual, 14));
+            const plazoR040 = formatDate(addDaysToDate(fechaActual, 25));
+            
+            document.getElementById("fechaEntregaR050").value = plazoR050;
+            document.getElementById("fechaEntregaR040").value = plazoR040;
+            
+            return {
+                R050: plazoR050,
+                R040: plazoR040
+            };
+        }
+
         // Manejo de carga de archivo Excel
         document.getElementById("fileInput").addEventListener("change", e => {
             const file = e.target.files[0];
@@ -415,6 +514,9 @@
                 sheetSelect.disabled = false;
                 document.getElementById("startColumn").disabled = false;
                 document.getElementById("processBtn").disabled = false;
+                
+                // Calcular fechas de entrega
+                calcularFechasEntrega();
             };
             reader.readAsBinaryString(file);
         });
@@ -428,7 +530,14 @@
                 const startColumn = parseInt(document.getElementById("startColumn").value);
                 const textoCabecera = document.getElementById("textoCabecera").value;
                 const fecha = document.getElementById("fecha").value;
-                const fechaEntrega = document.getElementById("fechaEntrega").value;
+                let fechaEntregaR050 = document.getElementById("fechaEntregaR050").value;
+                let fechaEntregaR040 = document.getElementById("fechaEntregaR040").value;
+                
+                if (!fechaEntregaR050 || !fechaEntregaR040) {
+                    const fechas = calcularFechasEntrega();
+                    fechaEntregaR050 = fechas.R050;
+                    fechaEntregaR040 = fechas.R040;
+                }
 
                 if (!sheetIndex || isNaN(startColumn)) {
                     alert("Selecciona hoja y columna válida");
@@ -444,6 +553,9 @@
                         const cantidad = data[i][j];
                         if (cantidad && tiendaMapping[tienda]) {
                             const m = tiendaMapping[tienda];
+                            // Seleccionar fecha de entrega según la sociedad
+                            const fechaEntrega = m.Sociedad === "R050" ? fechaEntregaR050 : fechaEntregaR040;
+                            
                             outputData.push({
                                 TIENDAS: tienda, Ind: "", Clase: m.Clase, Proveedor: m.Proveedor, FechaDocCompra: fecha,
                                 OrgCompra: m.OrgCompra, GrupoCompra: m.GrupoCompra, Sociedad: m.Sociedad, CondPago: m.CondPago,
@@ -474,22 +586,42 @@
                 tbody.innerHTML = Object.entries(summary).map(([tienda, cant]) => `<tr><td>${tienda}</td><td>${cant}</td></tr>`).join("");
                 document.getElementById("totalCantidad").textContent = total;
 
-                // Construir la tabla vertical
-                const verticalTable = document.getElementById("verticalTable");
-                if (outputData.length > 0) {
-                    verticalTable.innerHTML = `<thead><tr>${Object.keys(outputData[0]).map(h => `<th>${h}</th>`).join("")}</tr></thead>` +
-                        `<tbody>${outputData.map(row => `<tr>${Object.values(row).map(val => `<td>${val}</td>`).join("")}</tr>`).join("")}</tbody>`;
-                }
-
                 document.getElementById("loading").classList.add("hidden");
                 document.getElementById("showVerticalBtn").classList.remove("hidden");
                 document.getElementById("downloadVerticalBtn").classList.remove("hidden");
             }, 300);
         });
 
-        // Mostrar tabla verticalizada
+        // Mostrar selector de sociedad
         document.getElementById("showVerticalBtn").addEventListener("click", () => {
-            document.getElementById("verticalTableContainer").style.display = "block";
+            document.getElementById("societySelector").style.display = "flex";
+        });
+        
+        // Manejar selección de sociedad para visualizar
+        document.querySelectorAll(".society-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const society = e.target.dataset.society;
+                document.getElementById("societySelector").style.display = "none";
+                
+                // Filtrar datos según la sociedad seleccionada
+                let filteredData;
+                if (society === "TODAS") {
+                    filteredData = outputData;
+                } else {
+                    filteredData = outputData.filter(row => row.Sociedad === society);
+                }
+                
+                // Construir la tabla vertical con los datos filtrados
+                const verticalTable = document.getElementById("verticalTable");
+                if (filteredData.length > 0) {
+                    verticalTable.innerHTML = `<thead><tr>${Object.keys(filteredData[0]).map(h => `<th>${h}</th>`).join("")}</tr></thead>` +
+                        `<tbody>${filteredData.map(row => `<tr>${Object.values(row).map(val => `<td>${val}</td>`).join("")}</tr>`).join("")}</tbody>`;
+                } else {
+                    verticalTable.innerHTML = "<tr><td>No hay datos para la sociedad seleccionada</td></tr>";
+                }
+                
+                document.getElementById("verticalTableContainer").style.display = "block";
+            });
         });
 
         // Volver desde la vista de tabla
