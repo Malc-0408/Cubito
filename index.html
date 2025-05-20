@@ -129,6 +129,11 @@
             box-sizing: border-box;
         }
         
+        .form-control[readonly] {
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+        
         .btn {
             background-color: #0078ff;
             color: white;
@@ -262,6 +267,11 @@
             border-color: #555;
         }
         
+        .dark-mode .form-control[readonly] {
+            background-color: #222;
+            color: #aaa;
+        }
+        
         .dark-mode .btn {
             background-color: #333;
         }
@@ -360,7 +370,7 @@
             
             <div class="form-group">
                 <label>Fecha</label>
-                <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA">
+                <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA" readonly>
             </div>
             
             <div class="form-group">
