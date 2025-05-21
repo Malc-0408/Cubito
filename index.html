@@ -1,480 +1,861 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CUBITO LUKERS</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CUBITO LUKERS - Sistema de Verticalización Mejorado</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet" />
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Variables CSS y estilos generales (como en propuesta) */
+        :root {
+            --primary-color: #0078ff;
+            --primary-light: #e1f0ff;
+            --primary-dark: #0056b3;
+            --secondary-color: #ffcc00;
+            --secondary-dark: #e6b800;
+            --dark-color: #121212;
+            --dark-panel: #1e1e1e;
+            --dark-input: #333;
+            --light-color: #ffffff;
+            --light-bg: #f5f7fa;
+            --light-panel: #ffffff;
+            --accent-color: #ff4757;
+            --success-color: #2ed573;
+            --warning-color: #ffa502;
+            --gray-light: #f0f0f0;
+            --gray: #aaaaaa;
+            --gray-dark: #666666;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --radius-sm: 4px;
+            --transition: all 0.3s ease;
+        }
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f5f7fa;
+            box-sizing: border-box;
         }
-        
-        .header {
-            background-color: #0078ff;
-            color: white;
-            padding: 15px 0;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-color);
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+        body.dark-mode {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+        }
+        .wrapper {
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
         }
-        
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+        body.dark-mode .header {
+            background-color: var(--primary-dark);
+        }
         .logo-container {
             display: flex;
             align-items: center;
         }
-        
         .logo {
-            width: 50px;
-            height: 50px;
-            background-color: white;
+            width: 45px;
+            height: 45px;
+            background-color: var(--light-color);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 10px;
+            margin-right: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
         }
-        
         .logo span {
-            color: #0078ff;
+            color: var(--primary-color);
             font-weight: bold;
-            font-size: 14px;
+            font-size: 0.9rem;
         }
-        
         .title {
-            font-size: 24px;
+            font-size: 1.5rem;
             font-weight: bold;
         }
-        
-        .toggle-switch {
-            position: absolute;
-            right: 20px;
-            width: 60px;
-            height: 30px;
-            background-color: #ccc;
-            border-radius: 30px;
-            padding: 5px;
-            cursor: pointer;
-        }
-        
-        .toggle-switch-handle {
-            position: absolute;
-            right: 5px;
-            width: 30px;
-            height: 30px;
-            background-color: #ffcc00;
-            border-radius: 50%;
-        }
-        
-        .toggle-switch::before {
-            content: "☀️";
-            position: absolute;
-            left: 10px;
-            top: 7px;
-            font-size: 16px;
-        }
-        
-        body.dark-mode .toggle-switch::before {
-            content: "🌙";
-        }
-        
-        .container {
+        .header-actions {
             display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            max-width: 1200px;
+            align-items: center;
+            gap: 1rem;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--light-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        main.container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            transition: var(--transition);
         }
-        
+        section.panel {
+            background-color: var(--light-panel);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        body.dark-mode section.panel {
+            background-color: var(--dark-panel);
+            border: 1px solid #333;
+        }
         .left-panel, .right-panel {
-            background-color: white;
-            border-radius: 5px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            width: 48%;
+            flex: 1;
+            min-width: 300px;
         }
-        
         h2 {
-            color: #333;
-            margin-top: 0;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
             text-align: center;
-            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 0.5rem;
         }
-        
+        body.dark-mode h2 {
+            color: var(--primary-light);
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
         h3 {
-            color: #333;
-            margin-top: 30px;
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem;
+            font-weight: 500;
             text-align: center;
         }
-        
-        .form-group {
-            margin-bottom: 15px;
+        body.dark-mode h3 {
+            color: var(--primary-light);
         }
-        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-dark);
         }
-        
+        body.dark-mode .form-group label {
+            color: var(--gray-light);
+        }
         .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
         }
-        
+        body.dark-mode .form-control {
+            background-color: var(--dark-input);
+            border-color: #444;
+            color: var(--light-color);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 120, 255, 0.2);
+        }
         .form-control[readonly] {
-            background-color: #f9f9f9;
+            background-color: var(--gray-light);
             cursor: not-allowed;
         }
-        
-        .btn {
-            background-color: #0078ff;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 10px;
+        body.dark-mode .form-control[readonly] {
+            background-color: #222;
+            color: var(--gray);
         }
-        
+        .form-control::placeholder {
+            color: var(--gray);
+        }
+        .file-input-container {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            border: 2px dashed var(--gray-light);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+        }
+        body.dark-mode .file-input-container {
+            border-color: #444;
+        }
+        .file-input-container:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        body.dark-mode .file-input-container:hover {
+            background-color: #333;
+        }
+        .file-input-container i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        .file-input-container p {
+            font-size: 0.9rem;
+            color: var(--gray-dark);
+        }
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray-dark);
+            display: none;
+        }
+        body.dark-mode .file-info {
+            color: var(--gray-light);
+        }
+        .file-info i {
+            color: var(--success-color);
+        }
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        .btn-block {
+            width: 100%;
+        }
+        .btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .btn-group .btn {
+            flex: 1;
+        }
+        /* Loading indicator */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 120, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Summary table */
+        .table-container {
+            margin-top: 1.5rem;
+            overflow-x: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
         .table {
             width: 100%;
             border-collapse: collapse;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
+            font-size: 0.95rem;
         }
-        
         .table th, .table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
         }
-        
         .table th {
-            background-color: #f9f9f9;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
         }
-        
-        .btn-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+        body.dark-mode .table th {
+            background-color: #2a4d6e;
+            color: var(--light-color);
         }
-        
-        .btn-container .btn {
-            width: 48%;
+        .table tr:last-child td {
+            border-bottom: none;
         }
-        
-        .footer-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
+        .table tr:hover td {
+            background-color: var(--primary-light);
+            color: var(--dark-color);
         }
-        
-        .nav-btn {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            background-color: #f5f7fa;
-            border: 1px solid #ddd;
+        body.dark-mode .table tr:hover td {
+            background-color: #2a4d6e;
+            color: var(--light-color);
         }
-        
-        .hidden {
-            display: none;
+        .table tbody tr:nth-child(even) {
+            background-color: var(--light-bg);
         }
-        
-        #loading {
-            text-align: center;
-            margin: 10px 0;
+        body.dark-mode .table tbody tr:nth-child(even) {
+            background-color: #262626;
+        }
+        body.dark-mode .table tbody tr:nth-child(odd) {
+            background-color: #1e1e1e;
+        }
+        .table tfoot td {
             font-weight: bold;
-            color: #0078ff;
+            border-top: 2px solid var(--primary-light);
         }
-        
+        body.dark-mode .table tfoot td {
+            border-top: 2px solid #2a4d6e;
+        }
+        /* Vertical table container */
         #verticalTableContainer {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #f5f7fa;
+            background-color: rgba(0,0,0,0.8);
             z-index: 1000;
-            padding: 20px;
+            padding: 2rem;
             display: none;
             overflow: auto;
         }
-        
-        #verticalTableContainer .header {
+        .vertical-table-content {
+            background-color: var(--light-panel);
+            border-radius: var(--radius);
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .vertical-table-header {
+            padding: 1rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--light-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+        .vertical-table-header h2 {
+            color: var(--light-color);
+            margin: 0;
+            padding: 0;
+        }
+        .vertical-table-header h2::after {
+            display: none;
+        }
+        .vertical-table-header .btn-group {
+            margin: 0;
+        }
+        .vertical-table-body {
+            flex: 1;
+            overflow: auto;
+            padding: 1rem;
+        }
         #verticalTable {
             width: 100%;
             border-collapse: collapse;
-            font-family: Tahoma, sans-serif;
-            font-size: 8px;
+            font-size: 0.8rem;
         }
-        
         #verticalTable th, #verticalTable td {
-            padding: 6px;
+            padding: 0.5rem;
             text-align: center;
-            border: 1px solid #ddd;
-            font-family: Tahoma, sans-serif;
-            font-size: 8px;
+            border: 1px solid var(--gray-light);
         }
-        
         #verticalTable th {
-            background-color: #f9f9f9;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
             position: sticky;
             top: 0;
+            z-index: 1;
         }
-        
-        .dark-mode {
-            background-color: #121212;
-            color: #f0f0f0;
+        body.dark-mode #verticalTable th {
+            background-color: #2a4d6e;
+            color: var(--light-color);
         }
-        
-        .dark-mode .left-panel, .dark-mode .right-panel, .dark-mode .footer-nav {
+        #verticalTable tr:hover td {
+            background-color: var(--primary-light);
+            color: var(--dark-color);
+        }
+        body.dark-mode #verticalTable tr:hover td {
+            background-color: #2a4d6e;
+            color: var(--light-color);
+        }
+        body.dark-mode #verticalTable tr:nth-child(even) td {
+            background-color: #262626;
+        }
+        body.dark-mode #verticalTable tr:nth-child(odd) td {
             background-color: #1e1e1e;
-            color: #f0f0f0;
         }
-        
-        .dark-mode h2, .dark-mode h3, .dark-mode .form-group label {
-            color: #f0f0f0;
-        }
-        
-        .dark-mode .table th {
-            background-color: #333;
-            color: #f0f0f0;
-        }
-        
-        .dark-mode .form-control {
-            background-color: #333;
-            color: #f0f0f0;
-            border-color: #555;
-        }
-        
-        .dark-mode .form-control[readonly] {
-            background-color: #222;
-            color: #aaa;
-        }
-        
-        .dark-mode .btn {
-            background-color: #333;
-        }
-        
-        .dark-mode #verticalTableContainer {
-            background-color: #121212;
-        }
-        
-        .dark-mode #verticalTable th {
-            background-color: #333;
-            color: #f0f0f0;
-        }
-        
-        /* Estilos para selector de sociedad */
+        /* Society selector */
         #societySelector {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0,0,0,0.6);
+            background-color: rgba(0, 0, 0, 0.7);
             z-index: 1100;
             display: none;
             justify-content: center;
             align-items: center;
         }
-        
-        #societySelectorContent {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 350px;
+        .society-selector-content {
+            background-color: var(--light-panel);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        body.dark-mode .vertical-table-content,
+        body.dark-mode .society-selector-content {
+            background-color: var(--dark-panel);
+        }
+        .society-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .society-btn {
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .society-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: var(--light-color);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast i {
+            font-size: 1.2rem;
+        }
+        /* Advanced features */
+        .advanced-features {
+            margin-top: 2rem;
+            border-top: 1px solid var(--gray-light);
+            padding-top: 1.5rem;
+        }
+        .collapsible-trigger {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-weight: 500;
+        }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .collapsible-content.active {
+            max-height: 500px;
+        }
+        /* Date inputs row */
+        .date-inputs {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .date-inputs .form-group {
+            flex: 1;
+        }
+        /* Stats cards */
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 120px;
+            background-color: var(--light-color);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--shadow);
             text-align: center;
         }
-        
-        .dark-mode #societySelectorContent {
-            background-color: #1e1e1e;
-            color: #f0f0f0;
+        body.dark-mode .stat-card {
+            background-color: var(--dark-panel);
         }
-        
-        .society-btn {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 15px;
-            background-color: #0078ff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+        .stat-title {
+            font-size: 0.8rem;
+            color: var(--gray-dark);
+            margin-bottom: 0.5rem;
         }
-        
-        .dark-mode .society-btn {
-            background-color: #333;
+        body.dark-mode .stat-title {
+            color: var(--gray-light);
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            main.container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .header {
+                padding: 1rem;
+            }
+            .title {
+                font-size: 1.2rem;
+            }
+            .logo {
+                width: 35px;
+                height: 35px;
+            }
+            .vertical-table-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            .vertical-table-header .btn-group {
+                width: 100%;
+            }
+            .date-inputs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo-container">
-            <div class="logo">
-                <span>Lukers</span>
+    <div class="wrapper">
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <span>Lukers</span>
+                </div>
+                <h1 class="title">CUBITO LUKERS</h1>
             </div>
-            <div class="title">CUBITO LUKERS</div>
-        </div>
-        <div class="toggle-switch" id="toggle-theme">
-            <div class="toggle-switch-handle"></div>
+            <div class="header-actions">
+                <button id="toggle-theme" class="theme-toggle" title="Cambiar tema">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+        </header>
+        <main class="container">
+            <section class="panel left-panel">
+                <h2>Generador de Datos Verticalizados</h2>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-title">Tiendas</div>
+                        <div class="stat-value" id="totalTiendas">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Productos</div>
+                        <div class="stat-value" id="totalProductos">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Registros</div>
+                        <div class="stat-value" id="totalRegistros">0</div>
+                    </div>
+                </div>
+                <div class="file-input-container" id="file-drop-area" title="Arrastra tu archivo o haz clic para seleccionar">
+                    <i class="fas fa-file-excel"></i>
+                    <p>Arrastra tu archivo Excel o haz clic para seleccionar</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv" />
+                </div>
+                <div class="file-info" id="file-info">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="fileName"></span>
+                </div>
+                <div class="form-group">
+                    <label for="sheetSelect">Selecciona la hoja:</label>
+                    <select id="sheetSelect" class="form-control" disabled>
+                        <option value="">Seleccione una hoja</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startColumn">Columna de inicio:</label>
+                    <input type="number" id="startColumn" class="form-control" placeholder="Ej: 2 para columna 'B'" disabled min="1" />
+                </div>
+                <div class="form-group">
+                    <label for="textoCabecera">Texto de Cabecera:</label>
+                    <input type="text" id="textoCabecera" class="form-control" placeholder="Ingrese texto para la cabecera" />
+                </div>
+                <div class="date-inputs">
+                    <div class="form-group">
+                        <label for="fecha">Fecha Actual:</label>
+                        <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA" readonly />
+                    </div>
+                </div>
+                <div class="date-inputs">
+                    <div class="form-group">
+                        <label for="fechaEntregaR050">Entrega R050:</label>
+                        <input type="date" id="fechaEntregaR050" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaEntregaR040">Entrega R040:</label>
+                        <input type="date" id="fechaEntregaR040" class="form-control" />
+                    </div>
+                </div>
+                <button id="processBtn" class="btn btn-block" disabled>
+                    <i class="fas fa-table"></i> Verticalizar Datos
+                </button>
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Procesando datos...</p>
+                </div>
+                <div class="advanced-features">
+                    <button class="collapsible-trigger" id="advancedTrigger" aria-expanded="false" aria-controls="advancedContent">
+                        <span>Opciones Avanzadas</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="collapsible-content" id="advancedContent" aria-hidden="true">
+                        <div class="form-group">
+                            <label for="formatOptions">Formato de Salida:</label>
+                            <select id="formatOptions" class="form-control">
+                                <option value="excel">Excel (.xlsx)</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateFormat">Formato de Fecha:</label>
+                            <select id="dateFormat" class="form-control">
+                                <option value="DD.MM.YYYY">DD.MM.AAAA</option>
+                                <option value="YYYY-MM-DD">AAAA-MM-DD</option>
+                                <option value="MM/DD/YYYY">MM/DD/AAAA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fieldSeparator">Separador de Campos (CSV):</label>
+                            <select id="fieldSeparator" class="form-control">
+                                <option value=",">Coma (,)</option>
+                                <option value=";">Punto y coma (;)</option>
+                                <option value="\t">Tabulador</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="panel right-panel">
+                <h2>Resumen de Tiendas</h2>
+                <div class="table-container">
+                    <table id="summaryTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Tienda</th>
+                                <th>Sociedad</th>
+                                <th>Cantidad</th>
+                                <th>% del Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center">No hay datos disponibles</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"><strong>Total</strong></td>
+                                <td id="totalCantidad">0</td>
+                                <td>100%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <h3>Acciones Disponibles</h3>
+                <div class="btn-group">
+                    <button id="showVerticalBtn" class="btn btn-block" disabled>
+                        <i class="fas fa-eye"></i> Visualizar
+                    </button>
+                    <button id="downloadVerticalBtn" class="btn btn-block" disabled>
+                        <i class="fas fa-download"></i> Descargar
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Contenedor de tabla verticalizada -->
+    <div id="verticalTableContainer" aria-modal="true" role="dialog" aria-labelledby="verticalTableTitle">
+        <div class="vertical-table-content">
+            <div class="vertical-table-header">
+                <h2 id="verticalTableTitle">Datos Verticalizados</h2>
+                <div class="btn-group">
+                    <button id="copyTableBtn" class="btn" title="Copiar tabla al portapapeles">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                    <button id="filterTableBtn" class="btn btn-outline" title="Filtrar tabla" disabled>
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <button id="backBtn" class="btn btn-outline" title="Cerrar vista de datos">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                </div>
+            </div>
+            <div class="vertical-table-body">
+                <table id="verticalTable" role="grid" aria-live="polite" aria-readonly="true">
+                    <thead>
+                        <tr>
+                            <th>No hay datos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Procesa un archivo para ver datos</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    
-    <div class="container">
-        <div class="left-panel">
-            <h2>Sube tu archivo Excel</h2>
-            
-            <div class="form-group">
-                <label>Archivo Excel (.xlsx, .xls)</label>
-                <input type="file" id="fileInput" class="form-control" accept=".xlsx, .xls">
-            </div>
-            
-            <div class="form-group">
-                <label>Selecciona la hoja</label>
-                <select id="sheetSelect" class="form-control" disabled>
-                    <option value="">Seleccione una hoja</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Columna de inicio</label>
-                <input type="number" id="startColumn" class="form-control" placeholder="Ej: 2 para columna 'B'" disabled>
-            </div>
-            
-            <div class="form-group">
-                <label>Texto de Cabecera</label>
-                <input type="text" id="textoCabecera" class="form-control">
-            </div>
-            
-            <div class="form-group">
-                <label>Fecha</label>
-                <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA" readonly>
-            </div>
-            
-            <div class="form-group">
-                <label>Fecha de Entrega (R050)</label>
-                <input type="text" id="fechaEntregaR050" class="form-control" placeholder="DD.MM.AAAA">
-            </div>
-            
-            <div class="form-group">
-                <label>Fecha de Entrega (R040)</label>
-                <input type="text" id="fechaEntregaR040" class="form-control" placeholder="DD.MM.AAAA">
-            </div>
-            
-            <button id="processBtn" class="btn" disabled>Verticalizar</button>
-            <div id="loading" class="hidden">Procesando datos...</div>
-        </div>
-        
-        <div class="right-panel">
-            <h2>Resumen de Tiendas</h2>
-            
-            <table id="summaryTable" class="table">
-                <thead>
-                    <tr>
-                        <th>Tienda</th>
-                        <th>Cantidad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td><strong>Total</strong></td>
-                        <td id="totalCantidad"></td>
-                    </tr>
-                </tfoot>
-            </table>
-            
-            <h3>Datos Verticalizados</h3>
-            
-            <div class="btn-container">
-                <button id="showVerticalBtn" class="btn hidden">Visualizar</button>
-                <button id="downloadVerticalBtn" class="btn hidden">Descargar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="verticalTableContainer">
-        <div class="header">
-            <h2>Datos Verticalizados</h2>
-            <div>
-                <button id="copyTableBtn" class="btn" style="width: auto; padding: 10px 20px; margin-right: 10px;">Copiar Tabla</button>
-                <button id="backBtn" class="btn" style="width: auto; padding: 10px 20px;">Volver</button>
-            </div>
-        </div>
-        <table id="verticalTable">
-        </table>
-    </div>
-    
+
     <!-- Selector de Sociedad -->
-    <div id="societySelector">
-        <div id="societySelectorContent">
-            <h2>Seleccione Sociedad a Visualizar</h2>
-            <button class="society-btn" data-society="R050">Sociedad R050</button>
-            <button class="society-btn" data-society="R040">Sociedad R040</button>
-            <button class="society-btn" data-society="TODAS">Todas las Sociedades</button>
+    <div id="societySelector" role="dialog" aria-modal="true" aria-labelledby="societySelectorTitle" aria-hidden="true">
+        <div class="society-selector-content">
+            <h2 id="societySelectorTitle">Seleccione Sociedad a Visualizar</h2>
+            <div class="society-btn-group">
+                <button class="society-btn" data-society="R050" type="button">
+                    <i class="fas fa-building"></i> Sociedad R050
+                </button>
+                <button class="society-btn" data-society="R040" type="button">
+                    <i class="fas fa-building"></i> Sociedad R040
+                </button>
+                <button class="society-btn" data-society="TODAS" type="button">
+                    <i class="fas fa-th-list"></i> Todas las Sociedades
+                </button>
+            </div>
         </div>
     </div>
-    
+
+    <!-- Toast de notificación -->
+    <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operación completada con éxito</span>
+    </div>
+
     <script>
-        // Configuración de tema oscuro/claro
-        function toggleMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-            
-            document.getElementById('toggle-theme').addEventListener('click', toggleMode);
-            
-            // Inicializar fecha actual en formato DD.MM.AAAA
-            const hoy = new Date();
-            const dia = String(hoy.getDate()).padStart(2, '0');
-            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-            const anio = hoy.getFullYear();
-            document.getElementById('fecha').value = `${dia}.${mes}.${anio}`;
-            
-            // Calcular fechas de entrega iniciales
-            calcularFechasEntrega();
-        });
-
         // Variables globales
-        let workbook, outputData = [];
+        let workbook = null;
+        let outputData = [];
 
-        // Mapeo de tiendas y sus configuraciones
+        // Mapeo de tiendas y configuración (igual que propuesta original)
         const tiendaMapping = {
             "LUKERS EL SOL": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R501", Almacen: "PT01", Solicitante: "R501", AlmacenProcedencia: "PT01" },
             "LUKERS MENDIOLA": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R502", Almacen: "PT01", Solicitante: "R502", AlmacenProcedencia: "PT01" },
@@ -487,230 +868,408 @@
             "LUKERS CHI P. RUIZ": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R510", Almacen: "PT01", Solicitante: "R510", AlmacenProcedencia: "PT01" }
         };
 
-        // Función para agregar días a una fecha
+        // Funciones utilitarias fechas
         function addDaysToDate(date, days) {
             const result = new Date(date);
             result.setDate(result.getDate() + days);
             return result;
         }
-        
-        // Función para formatear fecha en DD.MM.AAAA
-        function formatDate(date) {
-            const dia = String(date.getDate()).padStart(2, '0');
-            const mes = String(date.getMonth() + 1).padStart(2, '0');
-            const anio = date.getFullYear();
-            return `${dia}.${mes}.${anio}`;
-        }
-        
-        // Calcular fechas de entrega para ambas sociedades
-        function calcularFechasEntrega() {
-            const fechaActual = new Date();
-            const plazoR050 = formatDate(addDaysToDate(fechaActual, 14));
-            const plazoR040 = formatDate(addDaysToDate(fechaActual, 25));
-            
-            document.getElementById("fechaEntregaR050").value = plazoR050;
-            document.getElementById("fechaEntregaR040").value = plazoR040;
-            
-            return {
-                R050: plazoR050,
-                R040: plazoR040
-            };
+        function formatDate(date, format = "DD.MM.YYYY") {
+            const d = date instanceof Date ? date : new Date(date);
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+            switch (format) {
+                case "YYYY-MM-DD": return `${yyyy}-${mm}-${dd}`;
+                case "MM/DD/YYYY": return `${mm}/${dd}/${yyyy}`;
+                case "DD.MM.YYYY":
+                default: return `${dd}.${mm}.${yyyy}`;
+            }
         }
 
-        // Manejo de carga de archivo Excel
-        document.getElementById("fileInput").addEventListener("change", e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = evt => {
-                workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                const sheetSelect = document.getElementById("sheetSelect");
-                sheetSelect.innerHTML = "";
-                workbook.SheetNames.forEach((name, i) => {
-                    sheetSelect.innerHTML += `<option value="${i}">${name}</option>`;
-                });
-                sheetSelect.disabled = false;
-                document.getElementById("startColumn").disabled = false;
-                document.getElementById("processBtn").disabled = false;
-                
-                // Calcular fechas de entrega
-                calcularFechasEntrega();
-            };
-            reader.readAsBinaryString(file);
+        function calcularFechasEntrega() {
+            const hoy = new Date();
+            const r050Input = document.getElementById("fechaEntregaR050");
+            const r040Input = document.getElementById("fechaEntregaR040");
+            if (!r050Input.value) r050Input.value = formatDate(addDaysToDate(hoy, 15), "YYYY-MM-DD");
+            if (!r040Input.value) r040Input.value = formatDate(addDaysToDate(hoy, 26), "YYYY-MM-DD");
+        }
+
+        // Mostrar toast notificación
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            const msg = document.getElementById("toastMessage");
+            msg.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        // Función para activar/desactivar el botón procesar
+        function validarBotonProcesar() {
+            const sheetSelect = document.getElementById("sheetSelect");
+            const startColumn = document.getElementById("startColumn");
+            const processBtn = document.getElementById("processBtn");
+            processBtn.disabled = !sheetSelect.value || !startColumn.value || isNaN(parseInt(startColumn.value));
+        }
+
+        // Cargar archivo y cargar hojas
+        const fileInput = document.getElementById("fileInput");
+        const fileInfo = document.getElementById("file-info");
+        const fileNameSpan = document.getElementById("fileName");
+        const sheetSelect = document.getElementById("sheetSelect");
+        const startColumnInput = document.getElementById("startColumn");
+        const loadingIndicator = document.getElementById("loading");
+
+        // Soporte para arrastrar archivo
+        const fileDropArea = document.getElementById("file-drop-area");
+        fileDropArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            fileDropArea.style.borderColor = "var(--primary-color)";
+            fileDropArea.style.backgroundColor = "var(--primary-light)";
+        });
+        fileDropArea.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            fileDropArea.style.borderColor = "var(--gray-light)";
+            fileDropArea.style.backgroundColor = "transparent";
+        });
+        fileDropArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            fileDropArea.style.borderColor = "var(--gray-light)";
+            fileDropArea.style.backgroundColor = "transparent";
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                triggerFileInputChange();
+            }
         });
 
-        // Procesar datos al hacer clic en el botón
-        document.getElementById("processBtn").addEventListener("click", () => {
-            document.getElementById("loading").classList.remove("hidden");
-            setTimeout(() => {
-                outputData = [];
-                const sheetIndex = document.getElementById("sheetSelect").value;
-                const startColumn = parseInt(document.getElementById("startColumn").value);
-                const textoCabecera = document.getElementById("textoCabecera").value;
-                const fecha = document.getElementById("fecha").value;
-                let fechaEntregaR050 = document.getElementById("fechaEntregaR050").value;
-                let fechaEntregaR040 = document.getElementById("fechaEntregaR040").value;
-                
-                if (!fechaEntregaR050 || !fechaEntregaR040) {
-                    const fechas = calcularFechasEntrega();
-                    fechaEntregaR050 = fechas.R050;
-                    fechaEntregaR040 = fechas.R040;
-                }
+        fileInput.addEventListener("change", triggerFileInputChange);
 
-                if (!sheetIndex || isNaN(startColumn)) {
-                    alert("Selecciona hoja y columna válida");
-                    document.getElementById("loading").classList.add("hidden");
+        function triggerFileInputChange() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            fileNameSpan.textContent = file.name;
+            fileInfo.style.display = "flex";
+            loadingIndicator.style.display = "block";
+            sheetSelect.innerHTML = "";
+            sheetSelect.disabled = true;
+            startColumnInput.value = "";
+            startColumnInput.disabled = true;
+            document.getElementById("processBtn").disabled = true;
+            outputData = [];
+            clearSummaryTable();
+            clearVerticalTable();
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                try {
+                    workbook = XLSX.read(evt.target.result, { type: "binary" });
+                    workbook.SheetNames.forEach((name, i) => {
+                        const option = document.createElement("option");
+                        option.value = i;
+                        option.textContent = name;
+                        sheetSelect.appendChild(option);
+                    });
+                    sheetSelect.disabled = false;
+                    startColumnInput.disabled = false;
+                    loadingIndicator.style.display = "none";
+                    validarBotonProcesar();
+                    calcularFechasEntrega();
+                } catch (error) {
+                    alert("Error al leer el archivo Excel. Verifique que sea un archivo válido.");
+                    loadingIndicator.style.display = "none";
+                }
+            };
+            reader.readAsBinaryString(file);
+        }
+
+        // Actualizar botón procesar al cambiar hoja o columna
+        sheetSelect.addEventListener("change", validarBotonProcesar);
+        startColumnInput.addEventListener("input", validarBotonProcesar);
+
+        // Evento botón Opciones avanzadas (colapsar)
+        const advancedTrigger = document.getElementById("advancedTrigger");
+        const advancedContent = document.getElementById("advancedContent");
+        advancedTrigger.addEventListener("click", () => {
+            const expanded = advancedTrigger.getAttribute("aria-expanded") === "true";
+            advancedTrigger.setAttribute("aria-expanded", !expanded);
+            advancedContent.classList.toggle("active");
+            advancedContent.setAttribute("aria-hidden", expanded);
+            advancedTrigger.querySelector("i").classList.toggle("fa-chevron-down");
+            advancedTrigger.querySelector("i").classList.toggle("fa-chevron-up");
+        });
+
+        // Procesar datos Excel al hacer clic en botón verticalizar
+        document.getElementById("processBtn").addEventListener("click", () => {
+            if (!workbook) return;
+            const sheetIndex = parseInt(sheetSelect.value);
+            const startCol = parseInt(startColumnInput.value);
+            const textoCabecera = document.getElementById("textoCabecera").value.trim();
+            const fechaActual = document.getElementById("fecha").value;
+            let fechaEntregaR050 = document.getElementById("fechaEntregaR050").value;
+            let fechaEntregaR040 = document.getElementById("fechaEntregaR040").value;
+            const formatoFecha = document.getElementById("dateFormat").value;
+            const formatoSalida = document.getElementById("formatOptions").value;
+            const separadorCampos = document.getElementById("fieldSeparator").value;
+
+            if (!sheetIndex || isNaN(startCol) || startCol < 1) {
+                alert("Selecciona hoja y columna válida");
+                return;
+            }
+
+            if (!fechaEntregaR050) {
+                fechaEntregaR050 = formatDate(addDaysToDate(new Date(), 14), "YYYY-MM-DD");
+                document.getElementById("fechaEntregaR050").value = fechaEntregaR050;
+            }
+            if (!fechaEntregaR040) {
+                fechaEntregaR040 = formatDate(addDaysToDate(new Date(), 25), "YYYY-MM-DD");
+                document.getElementById("fechaEntregaR040").value = fechaEntregaR040;
+            }
+
+            loadingIndicator.style.display = "block";
+            outputData = [];
+
+            setTimeout(() => {
+                // Leer datos hoja como matriz
+                const sheetName = workbook.SheetNames[sheetIndex];
+                const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+                if (data.length < 2) {
+                    alert("La hoja seleccionada no contiene datos suficientes.");
+                    loadingIndicator.style.display = "none";
                     return;
                 }
 
-                const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[sheetIndex]], {header:1});
+                // Mapeo de columnas y generación de filas verticalizadas
                 for (let i = 1; i < data.length; i++) {
                     const material = data[i][0];
-                    for (let j = startColumn; j < data[0].length; j++) {
+                    if (!material) continue;
+                    for (let j = startCol; j < data[0].length; j++) {
                         const tienda = data[0][j];
                         const cantidad = data[i][j];
-                        if (cantidad && tiendaMapping[tienda]) {
-                            const m = tiendaMapping[tienda];
-                            // Seleccionar fecha de entrega según la sociedad
-                            const fechaEntrega = m.Sociedad === "R050" ? fechaEntregaR050 : fechaEntregaR040;
-                            
+                        if (cantidad && tienda && tiendaMapping[tienda]) {
+                            const config = tiendaMapping[tienda];
+                            const fechaEntrega = config.Sociedad === "R050"
+                                ? formatDate(new Date(fechaEntregaR050), formatoFecha)
+                                : formatDate(new Date(fechaEntregaR040), formatoFecha);
                             outputData.push({
-                                TIENDAS: tienda, Ind: "", Clase: m.Clase, Proveedor: m.Proveedor, FechaDocCompra: fecha,
-                                OrgCompra: m.OrgCompra, GrupoCompra: m.GrupoCompra, Sociedad: m.Sociedad, CondPago: m.CondPago,
-                                TextoCabecera: textoCabecera, Material: material, Cantidad: cantidad, PrecioNeto: m.PrecioNeto,
-                                CentroTienda: m.CentroTienda, Almacen: m.Almacen, Solicitante: m.Solicitante, AlmacenProcedencia: m.AlmacenProcedencia,
+                                TIENDAS: tienda,
+                                Ind: "",
+                                Clase: config.Clase,
+                                Proveedor: config.Proveedor,
+                                FechaDocCompra: fechaActual, // Usar la fecha actual directamente del formulario
+                                OrgCompra: config.OrgCompra,
+                                GrupoCompra: config.GrupoCompra,
+                                Sociedad: config.Sociedad,
+                                CondPago: config.CondPago,
+                                TextoCabecera: textoCabecera,
+                                Material: material,
+                                Cantidad: cantidad,
+                                PrecioNeto: config.PrecioNeto,
+                                CentroTienda: config.CentroTienda,
+                                Almacen: config.Almacen,
+                                Solicitante: config.Solicitante,
+                                AlmacenProcedencia: config.AlmacenProcedencia,
                                 FechaEntrega: fechaEntrega
                             });
                         }
                     }
                 }
 
-                // Ordenamos y establecemos indicador H/D
+                if (outputData.length === 0) {
+                    alert("No se encontraron datos válidos para verticalizar.");
+                    loadingIndicator.style.display = "none";
+                    return;
+                }
+
+                // Ordenar y asignar indicador H/D
                 outputData.sort((a, b) => a.TIENDAS.localeCompare(b.TIENDAS));
-                let current = "";
+                let currentTienda = "";
                 outputData.forEach(row => {
-                    row.Ind = row.TIENDAS !== current ? "H" : "D";
-                    current = row.TIENDAS;
+                    row.Ind = row.TIENDAS !== currentTienda ? "H" : "D";
+                    currentTienda = row.TIENDAS;
                 });
 
-                // Construir la tabla de resumen
+                // Actualizar estadísticas
+                const tiendasSet = new Set(outputData.map(r => r.TIENDAS));
+                const productosSet = new Set(outputData.map(r => r.Material));
+                document.getElementById("totalTiendas").textContent = tiendasSet.size;
+                document.getElementById("totalProductos").textContent = productosSet.size;
+                document.getElementById("totalRegistros").textContent = outputData.length;
+
+                // Construir tabla resumen
                 const summary = {};
-                let total = 0;
+                let totalCant = 0;
                 outputData.forEach(r => {
                     summary[r.TIENDAS] = (summary[r.TIENDAS] || 0) + Number(r.Cantidad);
-                    total += Number(r.Cantidad);
+                    totalCant += Number(r.Cantidad);
                 });
-                const tbody = document.querySelector("#summaryTable tbody");
-                tbody.innerHTML = Object.entries(summary).map(([tienda, cant]) => `<tr><td>${tienda}</td><td>${cant}</td></tr>`).join("");
-                document.getElementById("totalCantidad").textContent = total;
+                const tbodySummary = document.querySelector("#summaryTable tbody");
+                tbodySummary.innerHTML = "";
+                for (const [tienda, cant] of Object.entries(summary)) {
+                    const porcentaje = totalCant > 0 ? ((cant / totalCant) * 100).toFixed(2) : 0;
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td>${tienda}</td><td>${tiendaMapping[tienda]?.Sociedad || ""}</td><td>${cant}</td><td>${porcentaje}%</td>`;
+                    tbodySummary.appendChild(row);
+                }
+                document.getElementById("totalCantidad").textContent = totalCant;
 
-                document.getElementById("loading").classList.add("hidden");
-                document.getElementById("showVerticalBtn").classList.remove("hidden");
-                document.getElementById("downloadVerticalBtn").classList.remove("hidden");
-            }, 300);
+                // Activar botones
+                document.getElementById("showVerticalBtn").disabled = false;
+                document.getElementById("downloadVerticalBtn").disabled = false;
+
+                loadingIndicator.style.display = "none";
+                showToast("Datos procesados correctamente");
+            }, 200);
         });
 
-        // Mostrar selector de sociedad
+        // Mostrar selector sociedad
         document.getElementById("showVerticalBtn").addEventListener("click", () => {
             document.getElementById("societySelector").style.display = "flex";
+            document.getElementById("societySelector").setAttribute("aria-hidden", "false");
         });
-        
-        // Manejar selección de sociedad para visualizar
+
+        // Manejar selección de sociedad para visualizar datos
         document.querySelectorAll(".society-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
-                const society = e.target.dataset.society;
+                const society = e.currentTarget.dataset.society;
                 document.getElementById("societySelector").style.display = "none";
-                
-                // Filtrar datos según la sociedad seleccionada
-                let filteredData;
-                if (society === "TODAS") {
-                    filteredData = outputData;
-                } else {
-                    filteredData = outputData.filter(row => row.Sociedad === society);
-                }
-                
-                // Construir la tabla vertical con los datos filtrados
+                document.getElementById("societySelector").setAttribute("aria-hidden", "true");
+
+                let filtered = society === "TODAS" ? outputData : outputData.filter(r => r.Sociedad === society);
+
                 const verticalTable = document.getElementById("verticalTable");
-                if (filteredData.length > 0) {
-                    verticalTable.innerHTML = `<thead><tr>${Object.keys(filteredData[0]).map(h => `<th>${h}</th>`).join("")}</tr></thead>` +
-                        `<tbody>${filteredData.map(row => `<tr>${Object.values(row).map(val => `<td>${val}</td>`).join("")}</tr>`).join("")}</tbody>`;
+                if (filtered.length > 0) {
+                    // Cabecera con claves del primer objeto
+                    const headers = Object.keys(filtered[0]);
+                    verticalTable.innerHTML =
+                        `<thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead>` +
+                        `<tbody>${filtered.map(row => `<tr>${headers.map(h => `<td>${row[h]}</td>`).join("")}</tr>`).join("")}</tbody>`;
                 } else {
-                    verticalTable.innerHTML = "<tr><td>No hay datos para la sociedad seleccionada</td></tr>";
+                    verticalTable.innerHTML = "<tbody><tr><td>No hay datos para la sociedad seleccionada</td></tr></tbody>";
                 }
-                
                 document.getElementById("verticalTableContainer").style.display = "block";
             });
         });
 
-        // Volver desde la vista de tabla
+        // Volver a la vista principal
         document.getElementById("backBtn").addEventListener("click", () => {
             document.getElementById("verticalTableContainer").style.display = "none";
         });
 
-        // Descargar Excel verticalizado
-        document.getElementById("downloadVerticalBtn").addEventListener("click", downloadExcel);
+        // Descargar datos verticalizados en Excel o CSV
+        document.getElementById("downloadVerticalBtn").addEventListener("click", () => {
+            if (outputData.length === 0) return;
+            const formato = document.getElementById("formatOptions").value;
+            if (formato === "excel") {
+                const ws = XLSX.utils.json_to_sheet(outputData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Verticalizado");
+                XLSX.writeFile(wb, "Datos_Verticalizados.xlsx");
+            } else if (formato === "csv") {
+                const csv = Papa.unparse(outputData, {
+                    delimiter: document.getElementById("fieldSeparator").value,
+                    quotes: true,
+                    header: true
+                });
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "Datos_Verticalizados.csv";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        });
 
-        // Copiar tabla al portapapeles
-        document.getElementById("copyTableBtn").addEventListener("click", copyTableToClipboard);
-
-        function copyTableToClipboard() {
+        // Copiar tabla verticalizada al portapapeles
+        document.getElementById("copyTableBtn").addEventListener("click", () => {
             const table = document.getElementById("verticalTable");
-            
-            // Crear una tabla temporal en memoria
+            if (!table) return;
             let tableText = "";
-            
+
             // Encabezados
             const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent);
             tableText += headers.join("\t") + "\n";
-            
+
             // Filas
             const rows = table.querySelectorAll("tbody tr");
             rows.forEach(row => {
                 const cells = Array.from(row.querySelectorAll("td")).map(td => td.textContent);
                 tableText += cells.join("\t") + "\n";
             });
-            
-            // Usar la API del portapapeles si está disponible
+
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(tableText)
-                    .then(() => {
-                        alert("Tabla copiada al portapapeles");
-                    })
-                    .catch(err => {
-                        console.error('Error al copiar tabla: ', err);
-                        fallbackCopyMethod(tableText);
-                    });
+                navigator.clipboard.writeText(tableText).then(() => {
+                    showToast("Tabla copiada al portapapeles");
+                }).catch(() => {
+                    fallbackCopyText(tableText);
+                });
             } else {
-                fallbackCopyMethod(tableText);
+                fallbackCopyText(tableText);
             }
-        }
-        
-        function fallbackCopyMethod(text) {
-            // Método alternativo para navegadores que no soportan clipboard API
+        });
+
+        function fallbackCopyText(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
             document.body.appendChild(textArea);
             textArea.select();
-            
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    alert("Tabla copiada al portapapeles");
-                } else {
-                    console.error('Fallback: No se pudo copiar al portapapeles');
-                }
-            } catch (err) {
-                console.error('Fallback: Error al copiar tabla', err);
+                document.execCommand("copy");
+                showToast("Tabla copiada al portapapeles");
+            } catch {
+                alert("No se pudo copiar la tabla");
             }
-            
             document.body.removeChild(textArea);
         }
 
-        function downloadExcel() {
-            const ws = XLSX.utils.json_to_sheet(outputData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Verticalizado');
-            XLSX.writeFile(wb, 'Datos_Verticalizados.xlsx');
+        // Cambiar tema y guardar en localStorage
+        const themeToggleBtn = document.getElementById("toggle-theme");
+        function updateThemeIcon() {
+            const icon = themeToggleBtn.querySelector("i");
+            if (document.body.classList.contains("dark-mode")) {
+                icon.classList.remove("fa-sun");
+                icon.classList.add("fa-moon");
+            } else {
+                icon.classList.remove("fa-moon");
+                icon.classList.add("fa-sun");
+            }
+        }
+        themeToggleBtn.addEventListener("click", () => {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+            updateThemeIcon();
+        });
+        window.addEventListener("load", () => {
+            if (localStorage.getItem("theme") === "dark") {
+                document.body.classList.add("dark-mode");
+            }
+            updateThemeIcon();
+
+            // Inicializar fecha actual DD.MM.AAAA
+            const hoy = new Date();
+            const dia = String(hoy.getDate()).padStart(2, "0");
+            const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+            const anio = hoy.getFullYear();
+            document.getElementById("fecha").value = `${dia}.${mes}.${anio}`;
+
+            calcularFechasEntrega();
+            
+            // Cambiar el color del texto del botón Volver a blanco
+            document.querySelector("#backBtn").style.color = "white";
+        });
+
+        // Limpieza tablas auxiliares
+        function clearSummaryTable() {
+            const tbody = document.querySelector("#summaryTable tbody");
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay datos disponibles</td></tr>`;
+            document.getElementById("totalCantidad").textContent = "0";
+        }
+        function clearVerticalTable() {
+            const verticalTable = document.getElementById("verticalTable");
+            verticalTable.innerHTML = `<thead><tr><th>No hay datos</th></tr></thead><tbody><tr><td>Procesa un archivo para ver datos</td></tr></tbody>`;
+            document.getElementById("showVerticalBtn").disabled = true;
+            document.getElementById("downloadVerticalBtn").disabled = true;
         }
     </script>
 </body>
