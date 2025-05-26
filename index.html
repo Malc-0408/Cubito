@@ -3,247 +3,398 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CUBITO LUKERS - Sistema de Verticalización Mejorado</title>
+    <title>CUBITO LUKERS - Sistema de Verticalización Avanzado</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        /* Variables CSS y estilos generales (como en propuesta) */
         :root {
-            --primary-color: #0078ff;
-            --primary-light: #e1f0ff;
-            --primary-dark: #0056b3;
-            --secondary-color: #ffcc00;
-            --secondary-dark: #e6b800;
-            --dark-color: #121212;
-            --dark-panel: #1e1e1e;
-            --dark-input: #333;
+            --primary-color: #3b82f6;
+            --primary-light: #dbeafe;
+            --primary-dark: #1e40af;
+            --secondary-color: #f59e0b;
+            --secondary-light: #fef3c7;
+            --secondary-dark: #d97706;
+            --success-color: #10b981;
+            --success-light: #d1fae5;
+            --warning-color: #f59e0b;
+            --warning-light: #fef3c7;
+            --error-color: #ef4444;
+            --error-light: #fee2e2;
+            --dark-color: #0f172a;
+            --dark-panel: #1e293b;
+            --dark-input: #334155;
+            --dark-border: #475569;
             --light-color: #ffffff;
-            --light-bg: #f5f7fa;
+            --light-bg: #f8fafc;
             --light-panel: #ffffff;
-            --accent-color: #ff4757;
-            --success-color: #2ed573;
-            --warning-color: #ffa502;
-            --gray-light: #f0f0f0;
-            --gray: #aaaaaa;
-            --gray-dark: #666666;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --radius: 8px;
-            --radius-sm: 4px;
-            --transition: all 0.3s ease;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --backdrop-blur: blur(20px);
         }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
-            color: var(--dark-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            color: var(--gray-900);
+            line-height: 1.6;
             transition: var(--transition);
             overflow-x: hidden;
+            min-height: 100vh;
         }
+
         body.dark-mode {
-            background-color: var(--dark-color);
-            color: var(--light-color);
+            background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+            color: var(--gray-50);
         }
+
         .wrapper {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
+
+        /* Header mejorado */
         .header {
-            background-color: var(--primary-color);
-            color: var(--light-color);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border-bottom: 1px solid var(--gray-200);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow);
             position: sticky;
             top: 0;
             z-index: 100;
             transition: var(--transition);
         }
+
         body.dark-mode .header {
-            background-color: var(--primary-dark);
+            background: rgba(30, 41, 59, 0.95);
+            border-bottom: 1px solid var(--gray-700);
         }
+
         .logo-container {
             display: flex;
             align-items: center;
+            gap: 1rem;
         }
+
         .logo {
-            width: 45px;
-            height: 45px;
-            background-color: var(--light-color);
-            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: var(--radius);
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-md);
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .logo:hover::before {
+            transform: translateX(100%);
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
         .logo span {
-            color: var(--primary-color);
-            font-weight: bold;
-            font-size: 0.9rem;
+            color: var(--light-color);
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: -0.5px;
         }
+
         .title {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
         }
+
         .header-actions {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
+
         .theme-toggle {
-            background: none;
-            border: none;
-            color: var(--light-color);
-            font-size: 1.5rem;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            color: var(--gray-600);
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 1.25rem;
         }
+
+        body.dark-mode .theme-toggle {
+            background: var(--gray-700);
+            border-color: var(--gray-600);
+            color: var(--gray-300);
+        }
+
         .theme-toggle:hover {
-            transform: scale(1.1);
+            background: var(--primary-color);
+            color: var(--light-color);
+            transform: scale(1.05);
         }
+
+        /* Container principal mejorado */
         main.container {
             flex: 1;
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            flex-wrap: wrap;
             transition: var(--transition);
         }
+
+        /* Paneles mejorados */
         section.panel {
-            background-color: var(--light-panel);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
+
         body.dark-mode section.panel {
-            background-color: var(--dark-panel);
-            border: 1px solid #333;
+            background: rgba(30, 41, 59, 0.8);
+            border-color: var(--gray-700);
         }
-        .left-panel, .right-panel {
-            flex: 1;
-            min-width: 300px;
+
+        section.panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         }
+
+        section.panel:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Títulos mejorados */
         h2 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
             text-align: center;
             position: relative;
-            padding-bottom: 0.5rem;
+            color: var(--gray-900);
         }
+
         body.dark-mode h2 {
-            color: var(--primary-light);
+            color: var(--gray-50);
         }
+
         h2::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
+            width: 60px;
             height: 3px;
-            background-color: var(--primary-color);
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             border-radius: 3px;
         }
+
         h3 {
-            color: var(--primary-color);
-            margin: 1.5rem 0 1rem;
-            font-weight: 500;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--gray-800);
             text-align: center;
         }
+
         body.dark-mode h3 {
-            color: var(--primary-light);
+            color: var(--gray-200);
         }
-        .form-group {
-            margin-bottom: 1.2rem;
+
+        /* Estadísticas mejoradas */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--gray-dark);
-        }
-        body.dark-mode .form-group label {
-            color: var(--gray-light);
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--radius-sm);
-            background-color: var(--light-color);
-            color: var(--dark-color);
-            font-family: inherit;
-            font-size: 1rem;
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--light-color) 0%, var(--gray-50) 100%);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow);
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
-        body.dark-mode .form-control {
-            background-color: var(--dark-input);
-            border-color: #444;
-            color: var(--light-color);
+
+        body.dark-mode .stat-card {
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-700) 100%);
+            border-color: var(--gray-600);
         }
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 120, 255, 0.2);
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         }
-        .form-control[readonly] {
-            background-color: var(--gray-light);
-            cursor: not-allowed;
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
-        body.dark-mode .form-control[readonly] {
-            background-color: #222;
-            color: var(--gray);
+
+        .stat-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .form-control::placeholder {
-            color: var(--gray);
+
+        body.dark-mode .stat-title {
+            color: var(--gray-400);
         }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        /* Área de carga de archivos mejorada */
         .file-input-container {
             position: relative;
             width: 100%;
-            height: 100px;
-            border: 2px dashed var(--gray-light);
-            border-radius: var(--radius);
+            min-height: 120px;
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-lg);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             transition: var(--transition);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--light-color) 100%);
         }
+
         body.dark-mode .file-input-container {
-            border-color: #444;
+            border-color: var(--gray-600);
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--gray-700) 100%);
         }
+
         .file-input-container:hover {
             border-color: var(--primary-color);
-            background-color: var(--primary-light);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            transform: scale(1.02);
         }
+
         body.dark-mode .file-input-container:hover {
-            background-color: #333;
+            background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-600) 100%);
         }
+
+        .file-input-container.dragover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+            transform: scale(1.02);
+        }
+
         .file-input-container i {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
         }
+
         .file-input-container p {
             font-size: 0.9rem;
-            color: var(--gray-dark);
+            color: var(--gray-600);
+            font-weight: 500;
+            text-align: center;
         }
+
+        body.dark-mode .file-input-container p {
+            color: var(--gray-400);
+        }
+
         .file-input {
             position: absolute;
             top: 0;
@@ -253,395 +404,645 @@
             opacity: 0;
             cursor: pointer;
         }
+
         .file-info {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--gray-dark);
-            display: none;
-        }
-        body.dark-mode .file-info {
-            color: var(--gray-light);
-        }
-        .file-info i {
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
             color: var(--success-color);
-        }
-        /* Buttons */
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: var(--radius-sm);
-            background-color: var(--primary-color);
-            color: var(--light-color);
             font-weight: 500;
-            cursor: pointer;
+            display: none;
+            padding: 0.75rem;
+            background: var(--success-light);
+            border-radius: var(--radius);
+            border: 1px solid var(--success-color);
+        }
+
+        body.dark-mode .file-info {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .file-info i {
+            font-size: 1rem;
+        }
+
+        /* Formularios mejorados */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        body.dark-mode .form-group label {
+            color: var(--gray-300);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            background: var(--light-color);
+            color: var(--gray-900);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
             transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        body.dark-mode .form-control {
+            background: var(--gray-700);
+            border-color: var(--gray-600);
+            color: var(--gray-100);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-control:disabled {
+            background: var(--gray-100);
+            color: var(--gray-500);
+            cursor: not-allowed;
+        }
+
+        body.dark-mode .form-control:disabled {
+            background: var(--gray-800);
+            color: var(--gray-500);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+            font-weight: 400;
+        }
+
+        /* Botones mejorados */
+        .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            font-size: 1rem;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
         }
-        .btn:hover {
-            background-color: var(--primary-dark);
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: var(--light-color);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-lg);
         }
-        .btn:active {
-            transform: translateY(0);
-        }
+
         .btn-outline {
-            background-color: transparent;
+            background: transparent;
             color: var(--primary-color);
-            border: 1px solid var(--primary-color);
+            border: 2px solid var(--primary-color);
         }
+
         .btn-outline:hover {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
+            background: var(--primary-color);
+            color: var(--light-color);
+            transform: translateY(-2px);
         }
+
         .btn-block {
             width: 100%;
         }
+
         .btn:disabled {
-            background-color: var(--gray);
+            background: var(--gray-400);
+            color: var(--gray-200);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
+
         .btn-group {
             display: flex;
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
         }
+
         .btn-group .btn {
             flex: 1;
         }
-        /* Loading indicator */
+
+        /* Indicador de carga mejorado */
         .loading {
             display: none;
             text-align: center;
-            margin: 1rem 0;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--light-color);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow);
         }
+
+        body.dark-mode .loading {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
         .loading-spinner {
             display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 120, 255, 0.2);
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--gray-200);
             border-radius: 50%;
             border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
         }
+
+        body.dark-mode .loading-spinner {
+            border-color: var(--gray-600);
+            border-top-color: var(--primary-color);
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        /* Summary table */
-        .table-container {
-            margin-top: 1.5rem;
-            overflow-x: auto;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+
+        .loading p {
+            color: var(--gray-600);
+            font-weight: 500;
+            margin: 0;
         }
+
+        body.dark-mode .loading p {
+            color: var(--gray-400);
+        }
+
+        /* Tablas mejoradas */
+        .table-container {
+            margin-top: 2rem;
+            overflow: hidden;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        body.dark-mode .table-container {
+            border-color: var(--gray-700);
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.95rem;
+            font-size: 0.875rem;
+            background: var(--light-color);
         }
-        .table th, .table td {
-            padding: 0.8rem 1rem;
+
+        body.dark-mode .table {
+            background: var(--gray-800);
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid var(--gray-light);
+            border-bottom: 1px solid var(--gray-200);
         }
+
+        body.dark-mode .table th,
+        body.dark-mode .table td {
+            border-bottom-color: var(--gray-700);
+        }
+
         .table th {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            font-weight: 600;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            color: var(--gray-900);
+            font-weight: 700;
             position: sticky;
             top: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.75rem;
         }
+
         body.dark-mode .table th {
-            background-color: #2a4d6e;
-            color: var(--light-color);
+            background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-600) 100%);
+            color: var(--gray-100);
         }
+
         .table tr:last-child td {
             border-bottom: none;
         }
-        .table tr:hover td {
-            background-color: var(--primary-light);
-            color: var(--dark-color);
+
+        .table tbody tr:hover {
+            background: var(--primary-light);
+            transition: var(--transition);
         }
-        body.dark-mode .table tr:hover td {
-            background-color: #2a4d6e;
-            color: var(--light-color);
+
+        body.dark-mode .table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.1);
         }
+
         .table tbody tr:nth-child(even) {
-            background-color: var(--light-bg);
+            background: var(--gray-50);
         }
+
         body.dark-mode .table tbody tr:nth-child(even) {
-            background-color: #262626;
+            background: var(--gray-750);
         }
-        body.dark-mode .table tbody tr:nth-child(odd) {
-            background-color: #1e1e1e;
-        }
+
         .table tfoot td {
-            font-weight: bold;
-            border-top: 2px solid var(--primary-light);
+            font-weight: 700;
+            border-top: 2px solid var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%);
         }
+
         body.dark-mode .table tfoot td {
-            border-top: 2px solid #2a4d6e;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
         }
-        /* Vertical table container */
-        #verticalTableContainer {
+
+        /* Modales mejorados */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
             z-index: 1000;
-            padding: 2rem;
             display: none;
-            overflow: auto;
+            animation: fadeIn 0.3s ease-out;
         }
-        .vertical-table-content {
-            background-color: var(--light-panel);
-            border-radius: var(--radius);
-            max-width: 1400px;
-            margin: 0 auto;
-            height: 100%;
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--light-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+            max-width: 95%;
+            max-height: 95%;
+            margin: 2rem auto;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            animation: slideIn 0.3s ease-out;
         }
-        .vertical-table-header {
-            padding: 1rem 1.5rem;
-            background-color: var(--primary-color);
+
+        body.dark-mode .modal-content {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: var(--light-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--gray-200);
         }
-        .vertical-table-header h2 {
+
+        .modal-header h2 {
             color: var(--light-color);
             margin: 0;
-            padding: 0;
+            font-size: 1.25rem;
         }
-        .vertical-table-header h2::after {
+
+        .modal-header h2::after {
             display: none;
         }
-        .vertical-table-header .btn-group {
-            margin: 0;
-        }
-        .vertical-table-body {
+
+        .modal-body {
             flex: 1;
             overflow: auto;
-            padding: 1rem;
+            padding: 1.5rem;
         }
-        #verticalTable {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        #verticalTable th, #verticalTable td {
-            padding: 0.5rem;
-            text-align: center;
-            border: 1px solid var(--gray-light);
-        }
-        #verticalTable th {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        body.dark-mode #verticalTable th {
-            background-color: #2a4d6e;
-            color: var(--light-color);
-        }
-        #verticalTable tr:hover td {
-            background-color: var(--primary-light);
-            color: var(--dark-color);
-        }
-        body.dark-mode #verticalTable tr:hover td {
-            background-color: #2a4d6e;
-            color: var(--light-color);
-        }
-        body.dark-mode #verticalTable tr:nth-child(even) td {
-            background-color: #262626;
-        }
-        body.dark-mode #verticalTable tr:nth-child(odd) td {
-            background-color: #1e1e1e;
-        }
-        /* Society selector */
-        #societySelector {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1100;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
+
+        /* Selector de sociedad mejorado */
         .society-selector-content {
-            background-color: var(--light-panel);
-            border-radius: var(--radius);
+            background: var(--light-color);
+            border-radius: var(--radius-lg);
             padding: 2rem;
             width: 400px;
             max-width: 90%;
+            margin: 10vh auto;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
             text-align: center;
-            box-shadow: var(--shadow);
         }
-        body.dark-mode .vertical-table-content,
+
         body.dark-mode .society-selector-content {
-            background-color: var(--dark-panel);
+            background: var(--gray-800);
+            border-color: var(--gray-700);
         }
+
         .society-btn-group {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            margin-top: 2rem;
         }
+
         .society-btn {
-            padding: 1rem;
-            background-color: var(--primary-color);
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: var(--light-color);
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius);
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
         }
+
+        .society-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .society-btn:hover::before {
+            left: 100%;
+        }
+
         .society-btn:hover {
-            background-color: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
-        /* Toast notification */
+
+        /* Toast mejorado */
         .toast {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: var(--success-color);
+            top: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
             color: var(--light-color);
             padding: 1rem 1.5rem;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-lg);
             z-index: 1200;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transform: translateY(-100px);
+            gap: 0.75rem;
+            transform: translateX(400px);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
         }
+
         .toast.show {
-            transform: translateY(0);
+            transform: translateX(0);
             opacity: 1;
         }
+
         .toast i {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
         }
-        /* Advanced features */
+
+        /* Características avanzadas */
         .advanced-features {
             margin-top: 2rem;
-            border-top: 1px solid var(--gray-light);
-            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            padding-top: 2rem;
         }
+
+        body.dark-mode .advanced-features {
+            border-top-color: var(--gray-700);
+        }
+
         .collapsible-trigger {
             background: none;
             border: none;
             color: var(--primary-color);
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
             display: flex;
             width: 100%;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem 0;
-            font-weight: 500;
+            padding: 1rem 0;
+            transition: var(--transition);
         }
+
+        .collapsible-trigger:hover {
+            color: var(--primary-dark);
+        }
+
+        .collapsible-trigger i {
+            transition: var(--transition);
+        }
+
         .collapsible-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .collapsible-content.active {
-            max-height: 500px;
+            max-height: 600px;
         }
-        /* Date inputs row */
+
+        /* Inputs de fecha */
         .date-inputs {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 1rem;
             margin-top: 1rem;
         }
-        .date-inputs .form-group {
-            flex: 1;
+
+        /* Buscador mejorado */
+        .search-container {
+            position: relative;
+            margin-bottom: 1rem;
         }
-        /* Stats cards */
-        .stats-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            background: var(--light-color);
+            color: var(--gray-900);
+            font-size: 0.9rem;
+            transition: var(--transition);
         }
-        .stat-card {
-            flex: 1;
-            min-width: 120px;
-            background-color: var(--light-color);
-            border-radius: var(--radius-sm);
-            padding: 1rem;
-            border-left: 4px solid var(--primary-color);
-            box-shadow: var(--shadow);
-            text-align: center;
+
+        body.dark-mode .search-input {
+            background: var(--gray-700);
+            border-color: var(--gray-600);
+            color: var(--gray-100);
         }
-        body.dark-mode .stat-card {
-            background-color: var(--dark-panel);
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        .stat-title {
-            font-size: 0.8rem;
-            color: var(--gray-dark);
-            margin-bottom: 0.5rem;
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 1rem;
         }
-        body.dark-mode .stat-title {
-            color: var(--gray-light);
-        }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        /* Responsive */
-        @media (max-width: 768px) {
+
+        /* Responsive mejorado */
+        @media (max-width: 1024px) {
             main.container {
-                flex-direction: column;
-                padding: 1rem;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
+        }
+
+        @media (max-width: 768px) {
             .header {
                 padding: 1rem;
             }
+
             .title {
-                font-size: 1.2rem;
+                font-size: 1.25rem;
             }
+
             .logo {
-                width: 35px;
-                height: 35px;
+                width: 40px;
+                height: 40px;
             }
-            .vertical-table-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
+
+            main.container {
+                padding: 1rem;
             }
-            .vertical-table-header .btn-group {
-                width: 100%;
+
+            section.panel {
+                padding: 1.5rem;
             }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
             .date-inputs {
-                flex-direction: column;
-                gap: 0.5rem;
+                grid-template-columns: 1fr;
             }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .society-selector-content {
+                width: 90%;
+                padding: 1.5rem;
+            }
+
+            .toast {
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(-100px);
+            }
+
+            .toast.show {
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+            }
+        }
+
+        /* Animaciones adicionales */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-10px); }
+            70% { transform: translateY(-5px); }
+            90% { transform: translateY(-2px); }
+        }
+
+        .bounce {
+            animation: bounce 1s ease-in-out;
         }
     </style>
 </head>
@@ -660,9 +1061,11 @@
                 </button>
             </div>
         </header>
+
         <main class="container">
             <section class="panel left-panel">
-                <h2>Generador de Datos Verticalizados</h2>
+                <h2><i class="fas fa-cogs"></i> Generador de Datos Verticalizados</h2>
+                
                 <div class="stats-row">
                     <div class="stat-card">
                         <div class="stat-title">Tiendas</div>
@@ -677,67 +1080,75 @@
                         <div class="stat-value" id="totalRegistros">0</div>
                     </div>
                 </div>
+
                 <div class="file-input-container" id="file-drop-area" title="Arrastra tu archivo o haz clic para seleccionar">
-                    <i class="fas fa-file-excel"></i>
-                    <p>Arrastra tu archivo Excel o haz clic para seleccionar</p>
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><strong>Arrastra tu archivo Excel aquí</strong><br>o haz clic para seleccionar</p>
                     <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv" />
                 </div>
+
                 <div class="file-info" id="file-info">
                     <i class="fas fa-check-circle"></i>
                     <span id="fileName"></span>
                 </div>
+
                 <div class="form-group">
-                    <label for="sheetSelect">Selecciona la hoja:</label>
+                    <label for="sheetSelect"><i class="fas fa-file-alt"></i> Selecciona la hoja:</label>
                     <select id="sheetSelect" class="form-control" disabled>
                         <option value="">Seleccione una hoja</option>
                     </select>
                 </div>
+
                 <div class="form-group">
-                    <label for="startColumn">Columna de inicio:</label>
+                    <label for="startColumn"><i class="fas fa-columns"></i> Columna de inicio:</label>
                     <input type="number" id="startColumn" class="form-control" placeholder="Ej: 2 para columna 'B'" disabled min="1" />
                 </div>
+
                 <div class="form-group">
-                    <label for="textoCabecera">Texto de Cabecera:</label>
+                    <label for="textoCabecera"><i class="fas fa-heading"></i> Texto de Cabecera:</label>
                     <input type="text" id="textoCabecera" class="form-control" placeholder="Ingrese texto para la cabecera" />
                 </div>
-                <div class="date-inputs">
-                    <div class="form-group">
-                        <label for="fecha">Fecha Actual:</label>
-                        <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA" readonly />
-                    </div>
+
+                <div class="form-group">
+                    <label for="fecha"><i class="fas fa-calendar-day"></i> Fecha Actual:</label>
+                    <input type="text" id="fecha" class="form-control" placeholder="DD.MM.AAAA" readonly />
                 </div>
+
                 <div class="date-inputs">
                     <div class="form-group">
-                        <label for="fechaEntregaR050">Entrega R050:</label>
+                        <label for="fechaEntregaR050"><i class="fas fa-truck"></i> Entrega R050:</label>
                         <input type="date" id="fechaEntregaR050" class="form-control" />
                     </div>
                     <div class="form-group">
-                        <label for="fechaEntregaR040">Entrega R040:</label>
+                        <label for="fechaEntregaR040"><i class="fas fa-truck"></i> Entrega R040:</label>
                         <input type="date" id="fechaEntregaR040" class="form-control" />
                     </div>
                 </div>
-                <button id="processBtn" class="btn btn-block" disabled>
-                    <i class="fas fa-table"></i> Verticalizar Datos
+
+                <button id="processBtn" class="btn btn-primary btn-block" disabled>
+                    <i class="fas fa-magic"></i> Verticalizar Datos
                 </button>
+
                 <div class="loading" id="loading">
                     <div class="loading-spinner"></div>
                     <p>Procesando datos...</p>
                 </div>
+
                 <div class="advanced-features">
                     <button class="collapsible-trigger" id="advancedTrigger" aria-expanded="false" aria-controls="advancedContent">
-                        <span>Opciones Avanzadas</span>
+                        <span><i class="fas fa-cog"></i> Opciones Avanzadas</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="collapsible-content" id="advancedContent" aria-hidden="true">
                         <div class="form-group">
-                            <label for="formatOptions">Formato de Salida:</label>
+                            <label for="formatOptions"><i class="fas fa-download"></i> Formato de Salida:</label>
                             <select id="formatOptions" class="form-control">
                                 <option value="excel">Excel (.xlsx)</option>
                                 <option value="csv">CSV</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="dateFormat">Formato de Fecha:</label>
+                            <label for="dateFormat"><i class="fas fa-calendar-alt"></i> Formato de Fecha:</label>
                             <select id="dateFormat" class="form-control">
                                 <option value="DD.MM.YYYY">DD.MM.AAAA</option>
                                 <option value="YYYY-MM-DD">AAAA-MM-DD</option>
@@ -745,7 +1156,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="fieldSeparator">Separador de Campos (CSV):</label>
+                            <label for="fieldSeparator"><i class="fas fa-grip-lines-vertical"></i> Separador de Campos (CSV):</label>
                             <select id="fieldSeparator" class="form-control">
                                 <option value=",">Coma (,)</option>
                                 <option value=";">Punto y coma (;)</option>
@@ -755,81 +1166,99 @@
                     </div>
                 </div>
             </section>
+
             <section class="panel right-panel">
-                <h2>Resumen de Tiendas</h2>
+                <h2><i class="fas fa-chart-bar"></i> Resumen de Tiendas</h2>
+                
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchTable" class="search-input" placeholder="Buscar en la tabla...">
+                </div>
+
                 <div class="table-container">
                     <table id="summaryTable" class="table">
                         <thead>
                             <tr>
-                                <th>Tienda</th>
-                                <th>Sociedad</th>
-                                <th>Cantidad</th>
-                                <th>% del Total</th>
+                                <th><i class="fas fa-store"></i> Tienda</th>
+                                <th><i class="fas fa-building"></i> Sociedad</th>
+                                <th><i class="fas fa-boxes"></i> Cantidad</th>
+                                <th><i class="fas fa-percentage"></i> % del Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="4" class="text-center">No hay datos disponibles</td>
+                                <td colspan="4" style="text-align: center; color: var(--gray-500); font-style: italic;">
+                                    <i class="fas fa-info-circle"></i> No hay datos disponibles
+                                </td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2"><strong>Total</strong></td>
-                                <td id="totalCantidad">0</td>
-                                <td>100%</td>
+                                <td colspan="2"><strong><i class="fas fa-calculator"></i> Total</strong></td>
+                                <td id="totalCantidad"><strong>0</strong></td>
+                                <td><strong>100%</strong></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-                <h3>Acciones Disponibles</h3>
+
+                <h3><i class="fas fa-tools"></i> Acciones Disponibles</h3>
                 <div class="btn-group">
-                    <button id="showVerticalBtn" class="btn btn-block" disabled>
-                        <i class="fas fa-eye"></i> Visualizar
+                    <button id="showVerticalBtn" class="btn btn-primary" disabled>
+                        <i class="fas fa-eye"></i> Visualizar Datos
                     </button>
-                    <button id="downloadVerticalBtn" class="btn btn-block" disabled>
-                        <i class="fas fa-download"></i> Descargar
+                    <button id="downloadVerticalBtn" class="btn btn-outline" disabled>
+                        <i class="fas fa-download"></i> Descargar Archivo
                     </button>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Contenedor de tabla verticalizada -->
-    <div id="verticalTableContainer" aria-modal="true" role="dialog" aria-labelledby="verticalTableTitle">
-        <div class="vertical-table-content">
-            <div class="vertical-table-header">
-                <h2 id="verticalTableTitle">Datos Verticalizados</h2>
-                <div class="btn-group">
-                    <button id="copyTableBtn" class="btn" title="Copiar tabla al portapapeles">
+    <!-- Modal de tabla verticalizada -->
+    <div id="verticalTableContainer" class="modal-overlay" aria-modal="true" role="dialog" aria-labelledby="verticalTableTitle">
+        <div class="modal-content" style="width: 95%; height: 90vh;">
+            <div class="modal-header">
+                <h2 id="verticalTableTitle"><i class="fas fa-table"></i> Datos Verticalizados</h2>
+                <div class="btn-group" style="margin: 0;">
+                    <button id="copyTableBtn" class="btn btn-outline" title="Copiar tabla al portapapeles" style="color: white; border-color: white;">
                         <i class="fas fa-copy"></i> Copiar
                     </button>
-                    <button id="filterTableBtn" class="btn btn-outline" title="Filtrar tabla" disabled>
-                        <i class="fas fa-filter"></i> Filtrar
+                    <button id="exportTableBtn" class="btn btn-outline" title="Exportar tabla" style="color: white; border-color: white;">
+                        <i class="fas fa-file-export"></i> Exportar
                     </button>
-                    <button id="backBtn" class="btn btn-outline" title="Cerrar vista de datos">
-                        <i class="fas fa-arrow-left"></i> Volver
+                    <button id="backBtn" class="btn btn-outline" title="Cerrar vista de datos" style="color: white; border-color: white;">
+                        <i class="fas fa-times"></i> Cerrar
                     </button>
                 </div>
             </div>
-            <div class="vertical-table-body">
-                <table id="verticalTable" role="grid" aria-live="polite" aria-readonly="true">
-                    <thead>
-                        <tr>
-                            <th>No hay datos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Procesa un archivo para ver datos</td></tr>
-                    </tbody>
-                </table>
+            <div class="modal-body">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchVerticalTable" class="search-input" placeholder="Buscar en los datos...">
+                </div>
+                <div style="overflow: auto; max-height: calc(90vh - 200px);">
+                    <table id="verticalTable" role="grid" aria-live="polite" aria-readonly="true" class="table">
+                        <thead>
+                            <tr>
+                                <th>No hay datos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="text-align: center; color: var(--gray-500); font-style: italic;">
+                                <i class="fas fa-info-circle"></i> Procesa un archivo para ver datos
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Selector de Sociedad -->
-    <div id="societySelector" role="dialog" aria-modal="true" aria-labelledby="societySelectorTitle" aria-hidden="true">
+    <!-- Modal selector de sociedad -->
+    <div id="societySelector" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="societySelectorTitle" aria-hidden="true">
         <div class="society-selector-content">
-            <h2 id="societySelectorTitle">Seleccione Sociedad a Visualizar</h2>
+            <h2 id="societySelectorTitle"><i class="fas fa-filter"></i> Seleccione Sociedad a Visualizar</h2>
             <div class="society-btn-group">
                 <button class="society-btn" data-society="R050" type="button">
                     <i class="fas fa-building"></i> Sociedad R050
@@ -854,8 +1283,9 @@
         // Variables globales
         let workbook = null;
         let outputData = [];
+        let currentFilteredData = [];
 
-        // Mapeo de tiendas y configuración (igual que propuesta original)
+        // Mapeo de tiendas y configuración
         const tiendaMapping = {
             "LUKERS EL SOL": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R501", Almacen: "PT01", Solicitante: "R501", AlmacenProcedencia: "PT01" },
             "LUKERS MENDIOLA": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R502", Almacen: "PT01", Solicitante: "R502", AlmacenProcedencia: "PT01" },
@@ -868,12 +1298,13 @@
             "LUKERS CHI P. RUIZ": { Clase: "Z009", Proveedor: "RD50", OrgCompra: "R050", GrupoCompra: "104", Sociedad: "R050", CondPago: "", PrecioNeto: "", CentroTienda: "R510", Almacen: "PT01", Solicitante: "R510", AlmacenProcedencia: "PT01" }
         };
 
-        // Funciones utilitarias fechas
+        // Funciones utilitarias
         function addDaysToDate(date, days) {
             const result = new Date(date);
             result.setDate(result.getDate() + days);
             return result;
         }
+
         function formatDate(date, format = "DD.MM.YYYY") {
             const d = date instanceof Date ? date : new Date(date);
             const dd = String(d.getDate()).padStart(2, "0");
@@ -895,47 +1326,99 @@
             if (!r040Input.value) r040Input.value = formatDate(addDaysToDate(hoy, 26), "YYYY-MM-DD");
         }
 
-        // Mostrar toast notificación
-        function showToast(message) {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById("toast");
             const msg = document.getElementById("toastMessage");
+            const icon = toast.querySelector('i');
+            
+            // Actualizar contenido
             msg.textContent = message;
+            
+            // Cambiar color y icono según el tipo
+            if (type === 'error') {
+                toast.style.background = 'linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%)';
+                icon.className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                toast.style.background = 'linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%)';
+                icon.className = 'fas fa-exclamation-triangle';
+            } else {
+                toast.style.background = 'linear-gradient(135deg, var(--success-color) 0%, #059669 100%)';
+                icon.className = 'fas fa-check-circle';
+            }
+            
             toast.classList.add("show");
-            setTimeout(() => toast.classList.remove("show"), 3000);
+            setTimeout(() => toast.classList.remove("show"), 4000);
         }
 
-        // Función para activar/desactivar el botón procesar
         function validarBotonProcesar() {
             const sheetSelect = document.getElementById("sheetSelect");
             const startColumn = document.getElementById("startColumn");
             const processBtn = document.getElementById("processBtn");
-            processBtn.disabled = !sheetSelect.value || !startColumn.value || isNaN(parseInt(startColumn.value));
+            const isValid = sheetSelect.value && startColumn.value && !isNaN(parseInt(startColumn.value));
+            
+            processBtn.disabled = !isValid;
+            if (isValid) {
+                processBtn.classList.add('pulse');
+                setTimeout(() => processBtn.classList.remove('pulse'), 2000);
+            }
         }
 
-        // Cargar archivo y cargar hojas
+        function updateStats() {
+            const tiendasSet = new Set(outputData.map(r => r.TIENDAS));
+            const productosSet = new Set(outputData.map(r => r.Material));
+            
+            // Animación de contador
+            animateCounter('totalTiendas', tiendasSet.size);
+            animateCounter('totalProductos', productosSet.size);
+            animateCounter('totalRegistros', outputData.length);
+        }
+
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const startValue = parseInt(element.textContent) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+            
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * progress);
+                
+                element.textContent = currentValue.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Configuración de eventos
         const fileInput = document.getElementById("fileInput");
         const fileInfo = document.getElementById("file-info");
         const fileNameSpan = document.getElementById("fileName");
         const sheetSelect = document.getElementById("sheetSelect");
         const startColumnInput = document.getElementById("startColumn");
         const loadingIndicator = document.getElementById("loading");
-
-        // Soporte para arrastrar archivo
         const fileDropArea = document.getElementById("file-drop-area");
+
+        // Eventos de arrastrar y soltar mejorados
         fileDropArea.addEventListener("dragover", (e) => {
             e.preventDefault();
-            fileDropArea.style.borderColor = "var(--primary-color)";
-            fileDropArea.style.backgroundColor = "var(--primary-light)";
+            fileDropArea.classList.add('dragover');
         });
+
         fileDropArea.addEventListener("dragleave", (e) => {
             e.preventDefault();
-            fileDropArea.style.borderColor = "var(--gray-light)";
-            fileDropArea.style.backgroundColor = "transparent";
+            if (!fileDropArea.contains(e.relatedTarget)) {
+                fileDropArea.classList.remove('dragover');
+            }
         });
+
         fileDropArea.addEventListener("drop", (e) => {
             e.preventDefault();
-            fileDropArea.style.borderColor = "var(--gray-light)";
-            fileDropArea.style.backgroundColor = "transparent";
+            fileDropArea.classList.remove('dragover');
             if (e.dataTransfer.files.length > 0) {
                 fileInput.files = e.dataTransfer.files;
                 triggerFileInputChange();
@@ -947,10 +1430,27 @@
         function triggerFileInputChange() {
             const file = fileInput.files[0];
             if (!file) return;
+
+            // Validar tipo de archivo
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!validTypes.includes(fileExtension)) {
+                showToast('Tipo de archivo no válido. Use Excel (.xlsx, .xls) o CSV.', 'error');
+                return;
+            }
+
+            // Validar tamaño (máximo 50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                showToast('El archivo es demasiado grande. Máximo 50MB.', 'error');
+                return;
+            }
+
             fileNameSpan.textContent = file.name;
             fileInfo.style.display = "flex";
             loadingIndicator.style.display = "block";
-            sheetSelect.innerHTML = "";
+            
+            // Reset de formulario
+            sheetSelect.innerHTML = '<option value="">Cargando hojas...</option>';
             sheetSelect.disabled = true;
             startColumnInput.value = "";
             startColumnInput.disabled = true;
@@ -958,48 +1458,70 @@
             outputData = [];
             clearSummaryTable();
             clearVerticalTable();
+
             const reader = new FileReader();
             reader.onload = function (evt) {
                 try {
                     workbook = XLSX.read(evt.target.result, { type: "binary" });
+                    
+                    // Poblar selector de hojas
+                    sheetSelect.innerHTML = '<option value="">Seleccione una hoja</option>';
                     workbook.SheetNames.forEach((name, i) => {
                         const option = document.createElement("option");
                         option.value = i;
                         option.textContent = name;
                         sheetSelect.appendChild(option);
                     });
+                    
                     sheetSelect.disabled = false;
                     startColumnInput.disabled = false;
                     loadingIndicator.style.display = "none";
+                    
                     validarBotonProcesar();
                     calcularFechasEntrega();
+                    showToast('Archivo cargado correctamente');
+                    
                 } catch (error) {
-                    alert("Error al leer el archivo Excel. Verifique que sea un archivo válido.");
+                    showToast('Error al leer el archivo Excel. Verifique que sea un archivo válido.', 'error');
                     loadingIndicator.style.display = "none";
+                    console.error('Error reading file:', error);
                 }
             };
+            
+            reader.onerror = function() {
+                showToast('Error al leer el archivo.', 'error');
+                loadingIndicator.style.display = "none";
+            };
+            
             reader.readAsBinaryString(file);
         }
 
-        // Actualizar botón procesar al cambiar hoja o columna
+        // Eventos de validación
         sheetSelect.addEventListener("change", validarBotonProcesar);
         startColumnInput.addEventListener("input", validarBotonProcesar);
 
-        // Evento botón Opciones avanzadas (colapsar)
+        // Opciones avanzadas
         const advancedTrigger = document.getElementById("advancedTrigger");
         const advancedContent = document.getElementById("advancedContent");
+        
         advancedTrigger.addEventListener("click", () => {
             const expanded = advancedTrigger.getAttribute("aria-expanded") === "true";
             advancedTrigger.setAttribute("aria-expanded", !expanded);
             advancedContent.classList.toggle("active");
             advancedContent.setAttribute("aria-hidden", expanded);
-            advancedTrigger.querySelector("i").classList.toggle("fa-chevron-down");
-            advancedTrigger.querySelector("i").classList.toggle("fa-chevron-up");
+            
+            const icon = advancedTrigger.querySelector("i:last-child");
+            icon.classList.toggle("fa-chevron-down");
+            icon.classList.toggle("fa-chevron-up");
         });
 
-        // Procesar datos Excel al hacer clic en botón verticalizar
+        // Procesamiento de datos
         document.getElementById("processBtn").addEventListener("click", () => {
-            if (!workbook) return;
+            if (!workbook) {
+                showToast('No hay archivo cargado', 'error');
+                return;
+            }
+
             const sheetIndex = parseInt(sheetSelect.value);
             const startCol = parseInt(startColumnInput.value);
             const textoCabecera = document.getElementById("textoCabecera").value.trim();
@@ -1007,162 +1529,261 @@
             let fechaEntregaR050 = document.getElementById("fechaEntregaR050").value;
             let fechaEntregaR040 = document.getElementById("fechaEntregaR040").value;
             const formatoFecha = document.getElementById("dateFormat").value;
-            const formatoSalida = document.getElementById("formatOptions").value;
-            const separadorCampos = document.getElementById("fieldSeparator").value;
 
-            if (!sheetIndex || isNaN(startCol) || startCol < 1) {
-                alert("Selecciona hoja y columna válida");
+            if (isNaN(sheetIndex) || isNaN(startCol) || startCol < 1) {
+                showToast('Selecciona una hoja y columna válida', 'error');
                 return;
             }
 
+            // Valores por defecto para fechas
             if (!fechaEntregaR050) {
-                fechaEntregaR050 = formatDate(addDaysToDate(new Date(), 14), "YYYY-MM-DD");
+                fechaEntregaR050 = formatDate(addDaysToDate(new Date(), 15), "YYYY-MM-DD");
                 document.getElementById("fechaEntregaR050").value = fechaEntregaR050;
             }
             if (!fechaEntregaR040) {
-                fechaEntregaR040 = formatDate(addDaysToDate(new Date(), 25), "YYYY-MM-DD");
+                fechaEntregaR040 = formatDate(addDaysToDate(new Date(), 26), "YYYY-MM-DD");
                 document.getElementById("fechaEntregaR040").value = fechaEntregaR040;
             }
 
             loadingIndicator.style.display = "block";
             outputData = [];
 
+            // Procesamiento con delay para UX
             setTimeout(() => {
-                // Leer datos hoja como matriz
-                const sheetName = workbook.SheetNames[sheetIndex];
-                const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-                if (data.length < 2) {
-                    alert("La hoja seleccionada no contiene datos suficientes.");
-                    loadingIndicator.style.display = "none";
-                    return;
-                }
+                try {
+                    const sheetName = workbook.SheetNames[sheetIndex];
+                    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+                    
+                    if (data.length < 2) {
+                        showToast('La hoja seleccionada no contiene datos suficientes.', 'warning');
+                        loadingIndicator.style.display = "none";
+                        return;
+                    }
 
-                // Mapeo de columnas y generación de filas verticalizadas
-                for (let i = 1; i < data.length; i++) {
-                    const material = data[i][0];
-                    if (!material) continue;
-                    for (let j = startCol; j < data[0].length; j++) {
-                        const tienda = data[0][j];
-                        const cantidad = data[i][j];
-                        if (cantidad && tienda && tiendaMapping[tienda]) {
-                            const config = tiendaMapping[tienda];
-                            const fechaEntrega = config.Sociedad === "R050"
-                                ? formatDate(new Date(fechaEntregaR050), formatoFecha)
-                                : formatDate(new Date(fechaEntregaR040), formatoFecha);
-                            outputData.push({
-                                TIENDAS: tienda,
-                                Ind: "",
-                                Clase: config.Clase,
-                                Proveedor: config.Proveedor,
-                                FechaDocCompra: fechaActual, // Usar la fecha actual directamente del formulario
-                                OrgCompra: config.OrgCompra,
-                                GrupoCompra: config.GrupoCompra,
-                                Sociedad: config.Sociedad,
-                                CondPago: config.CondPago,
-                                TextoCabecera: textoCabecera,
-                                Material: material,
-                                Cantidad: cantidad,
-                                PrecioNeto: config.PrecioNeto,
-                                CentroTienda: config.CentroTienda,
-                                Almacen: config.Almacen,
-                                Solicitante: config.Solicitante,
-                                AlmacenProcedencia: config.AlmacenProcedencia,
-                                FechaEntrega: fechaEntrega
-                            });
+                    // Procesamiento de datos
+                    let processedRows = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        const material = data[i][0];
+                        if (!material) continue;
+                        
+                        for (let j = startCol - 1; j < data[0].length; j++) {
+                            const tienda = data[0][j];
+                            const cantidad = data[i][j];
+                            
+                            if (cantidad && tienda && tiendaMapping[tienda]) {
+                                const config = tiendaMapping[tienda];
+                                const fechaEntrega = config.Sociedad === "R050"
+                                    ? formatDate(new Date(fechaEntregaR050), formatoFecha)
+                                    : formatDate(new Date(fechaEntregaR040), formatoFecha);
+                                
+                                outputData.push({
+                                    TIENDAS: tienda,
+                                    Ind: "",
+                                    Clase: config.Clase,
+                                    Proveedor: config.Proveedor,
+                                    FechaDocCompra: fechaActual,
+                                    OrgCompra: config.OrgCompra,
+                                    GrupoCompra: config.GrupoCompra,
+                                    Sociedad: config.Sociedad,
+                                    CondPago: config.CondPago,
+                                    TextoCabecera: textoCabecera,
+                                    Material: material,
+                                    Cantidad: cantidad,
+                                    PrecioNeto: config.PrecioNeto,
+                                    CentroTienda: config.CentroTienda,
+                                    Almacen: config.Almacen,
+                                    Solicitante: config.Solicitante,
+                                    AlmacenProcedencia: config.AlmacenProcedencia,
+                                    FechaEntrega: fechaEntrega
+                                });
+                                processedRows++;
+                            }
                         }
                     }
-                }
 
-                if (outputData.length === 0) {
-                    alert("No se encontraron datos válidos para verticalizar.");
+                    if (outputData.length === 0) {
+                        showToast('No se encontraron datos válidos para verticalizar.', 'warning');
+                        loadingIndicator.style.display = "none";
+                        return;
+                    }
+
+                    // Ordenar y asignar indicadores
+                    outputData.sort((a, b) => a.TIENDAS.localeCompare(b.TIENDAS));
+                    let currentTienda = "";
+                    outputData.forEach(row => {
+                        row.Ind = row.TIENDAS !== currentTienda ? "H" : "D";
+                        currentTienda = row.TIENDAS;
+                    });
+
+                    // Actualizar estadísticas con animación
+                    updateStats();
+
+                    // Construir tabla resumen
+                    buildSummaryTable();
+
+                    // Activar botones
+                    document.getElementById("showVerticalBtn").disabled = false;
+                    document.getElementById("downloadVerticalBtn").disabled = false;
+
+                    // Añadir efecto de éxito
+                    document.getElementById("showVerticalBtn").classList.add('bounce');
+                    document.getElementById("downloadVerticalBtn").classList.add('bounce');
+
                     loadingIndicator.style.display = "none";
-                    return;
+                    showToast(`Datos procesados correctamente. ${processedRows} registros generados.`);
+                    
+                } catch (error) {
+                    console.error('Error processing data:', error);
+                    showToast('Error al procesar los datos. Verifique el formato del archivo.', 'error');
+                    loadingIndicator.style.display = "none";
                 }
-
-                // Ordenar y asignar indicador H/D
-                outputData.sort((a, b) => a.TIENDAS.localeCompare(b.TIENDAS));
-                let currentTienda = "";
-                outputData.forEach(row => {
-                    row.Ind = row.TIENDAS !== currentTienda ? "H" : "D";
-                    currentTienda = row.TIENDAS;
-                });
-
-                // Actualizar estadísticas
-                const tiendasSet = new Set(outputData.map(r => r.TIENDAS));
-                const productosSet = new Set(outputData.map(r => r.Material));
-                document.getElementById("totalTiendas").textContent = tiendasSet.size;
-                document.getElementById("totalProductos").textContent = productosSet.size;
-                document.getElementById("totalRegistros").textContent = outputData.length;
-
-                // Construir tabla resumen
-                const summary = {};
-                let totalCant = 0;
-                outputData.forEach(r => {
-                    summary[r.TIENDAS] = (summary[r.TIENDAS] || 0) + Number(r.Cantidad);
-                    totalCant += Number(r.Cantidad);
-                });
-                const tbodySummary = document.querySelector("#summaryTable tbody");
-                tbodySummary.innerHTML = "";
-                for (const [tienda, cant] of Object.entries(summary)) {
-                    const porcentaje = totalCant > 0 ? ((cant / totalCant) * 100).toFixed(2) : 0;
-                    const row = document.createElement("tr");
-                    row.innerHTML = `<td>${tienda}</td><td>${tiendaMapping[tienda]?.Sociedad || ""}</td><td>${cant}</td><td>${porcentaje}%</td>`;
-                    tbodySummary.appendChild(row);
-                }
-                document.getElementById("totalCantidad").textContent = totalCant;
-
-                // Activar botones
-                document.getElementById("showVerticalBtn").disabled = false;
-                document.getElementById("downloadVerticalBtn").disabled = false;
-
-                loadingIndicator.style.display = "none";
-                showToast("Datos procesados correctamente");
-            }, 200);
+            }, 500);
         });
 
-        // Mostrar selector sociedad
+        function buildSummaryTable() {
+            const summary = {};
+            let totalCant = 0;
+            
+            outputData.forEach(r => {
+                const cantidad = Number(r.Cantidad) || 0;
+                summary[r.TIENDAS] = (summary[r.TIENDAS] || 0) + cantidad;
+                totalCant += cantidad;
+            });
+
+            const tbodySummary = document.querySelector("#summaryTable tbody");
+            tbodySummary.innerHTML = "";
+            
+            const sortedSummary = Object.entries(summary).sort((a, b) => b[1] - a[1]);
+            
+            sortedSummary.forEach(([tienda, cant]) => {
+                const porcentaje = totalCant > 0 ? ((cant / totalCant) * 100).toFixed(2) : 0;
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><i class="fas fa-store"></i> ${tienda}</td>
+                    <td><span class="badge">${tiendaMapping[tienda]?.Sociedad || ""}</span></td>
+                    <td><strong>${cant.toLocaleString()}</strong></td>
+                    <td><strong>${porcentaje}%</strong></td>
+                `;
+                tbodySummary.appendChild(row);
+            });
+            
+            document.getElementById("totalCantidad").innerHTML = `<strong>${totalCant.toLocaleString()}</strong>`;
+        }
+
+        // Funcionalidad de búsqueda
+        document.getElementById("searchTable").addEventListener("input", function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll("#summaryTable tbody tr");
+            
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? "" : "none";
+            });
+        });
+
+        document.getElementById("searchVerticalTable").addEventListener("input", function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll("#verticalTable tbody tr");
+            
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? "" : "none";
+            });
+        });
+
+        // Mostrar selector de sociedad
         document.getElementById("showVerticalBtn").addEventListener("click", () => {
             document.getElementById("societySelector").style.display = "flex";
             document.getElementById("societySelector").setAttribute("aria-hidden", "false");
         });
 
-        // Manejar selección de sociedad para visualizar datos
+        // Manejar selección de sociedad
         document.querySelectorAll(".society-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const society = e.currentTarget.dataset.society;
                 document.getElementById("societySelector").style.display = "none";
                 document.getElementById("societySelector").setAttribute("aria-hidden", "true");
 
-                let filtered = society === "TODAS" ? outputData : outputData.filter(r => r.Sociedad === society);
-
-                const verticalTable = document.getElementById("verticalTable");
-                if (filtered.length > 0) {
-                    // Cabecera con claves del primer objeto
-                    const headers = Object.keys(filtered[0]);
-                    verticalTable.innerHTML =
-                        `<thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead>` +
-                        `<tbody>${filtered.map(row => `<tr>${headers.map(h => `<td>${row[h]}</td>`).join("")}</tr>`).join("")}</tbody>`;
-                } else {
-                    verticalTable.innerHTML = "<tbody><tr><td>No hay datos para la sociedad seleccionada</td></tr></tbody>";
-                }
+                const filtered = society === "TODAS" ? outputData : outputData.filter(r => r.Sociedad === society);
+                currentFilteredData = filtered;
+                
+                displayVerticalTable(filtered);
                 document.getElementById("verticalTableContainer").style.display = "block";
             });
         });
 
-        // Volver a la vista principal
+        function displayVerticalTable(data) {
+            const verticalTable = document.getElementById("verticalTable");
+            
+            if (data.length > 0) {
+                const headers = Object.keys(data[0]);
+                const headerRow = headers.map(h => `<th><i class="fas fa-${getIconForHeader(h)}"></i> ${h}</th>`).join("");
+                const dataRows = data.map(row => 
+                    `<tr>${headers.map(h => `<td>${row[h]}</td>`).join("")}</tr>`
+                ).join("");
+                
+                verticalTable.innerHTML = `
+                    <thead><tr>${headerRow}</tr></thead>
+                    <tbody>${dataRows}</tbody>
+                `;
+            } else {
+                verticalTable.innerHTML = `
+                    <thead><tr><th>No hay datos</th></tr></thead>
+                    <tbody><tr><td style="text-align: center; color: var(--gray-500); font-style: italic;">
+                        <i class="fas fa-info-circle"></i> No hay datos para la sociedad seleccionada
+                    </td></tr></tbody>
+                `;
+            }
+        }
+
+        function getIconForHeader(header) {
+            const iconMap = {
+                'TIENDAS': 'store',
+                'Material': 'box',
+                'Cantidad': 'hashtag',
+                'Sociedad': 'building',
+                'FechaEntrega': 'calendar',
+                'Proveedor': 'truck',
+                'Clase': 'tag'
+            };
+            return iconMap[header] || 'circle';
+        }
+
+        // Cerrar modal
         document.getElementById("backBtn").addEventListener("click", () => {
             document.getElementById("verticalTableContainer").style.display = "none";
         });
 
-        // Descargar datos verticalizados en Excel o CSV
+        // Cerrar modal al hacer clic fuera
+        document.getElementById("verticalTableContainer").addEventListener("click", (e) => {
+            if (e.target.id === "verticalTableContainer") {
+                document.getElementById("verticalTableContainer").style.display = "none";
+            }
+        });
+
+        document.getElementById("societySelector").addEventListener("click", (e) => {
+            if (e.target.id === "societySelector") {
+                document.getElementById("societySelector").style.display = "none";
+                document.getElementById("societySelector").setAttribute("aria-hidden", "true");
+            }
+        });
+
+        // Descargar datos
         document.getElementById("downloadVerticalBtn").addEventListener("click", () => {
-            if (outputData.length === 0) return;
+            if (outputData.length === 0) {
+                showToast('No hay datos para descargar', 'warning');
+                return;
+            }
+            
             const formato = document.getElementById("formatOptions").value;
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            
             if (formato === "excel") {
                 const ws = XLSX.utils.json_to_sheet(outputData);
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Verticalizado");
-                XLSX.writeFile(wb, "Datos_Verticalizados.xlsx");
+                XLSX.utils.book_append_sheet(wb, ws, "Datos Verticalizados");
+                XLSX.writeFile(wb, `Cubito_Lukers_Verticalizados_${timestamp}.xlsx`);
+                showToast('Archivo Excel descargado correctamente');
             } else if (formato === "csv") {
                 const csv = Papa.unparse(outputData, {
                     delimiter: document.getElementById("fieldSeparator").value,
@@ -1173,29 +1794,30 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = "Datos_Verticalizados.csv";
+                link.download = `Cubito_Lukers_Verticalizados_${timestamp}.csv`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
+                showToast('Archivo CSV descargado correctamente');
             }
         });
 
-        // Copiar tabla verticalizada al portapapeles
+        // Copiar tabla
         document.getElementById("copyTableBtn").addEventListener("click", () => {
             const table = document.getElementById("verticalTable");
-            if (!table) return;
+            if (!table || currentFilteredData.length === 0) {
+                showToast('No hay datos para copiar', 'warning');
+                return;
+            }
+
             let tableText = "";
-
-            // Encabezados
-            const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent);
+            const headers = Object.keys(currentFilteredData[0]);
             tableText += headers.join("\t") + "\n";
-
-            // Filas
-            const rows = table.querySelectorAll("tbody tr");
-            rows.forEach(row => {
-                const cells = Array.from(row.querySelectorAll("td")).map(td => td.textContent);
-                tableText += cells.join("\t") + "\n";
+            
+            currentFilteredData.forEach(row => {
+                const values = headers.map(h => row[h]);
+                tableText += values.join("\t") + "\n";
             });
 
             if (navigator.clipboard) {
@@ -1212,19 +1834,37 @@
         function fallbackCopyText(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-9999px";
             document.body.appendChild(textArea);
             textArea.select();
             try {
                 document.execCommand("copy");
                 showToast("Tabla copiada al portapapeles");
-            } catch {
-                alert("No se pudo copiar la tabla");
+            } catch (error) {
+                showToast('No se pudo copiar la tabla', 'error');
             }
             document.body.removeChild(textArea);
         }
 
-        // Cambiar tema y guardar en localStorage
+        // Exportar tabla modal
+        document.getElementById("exportTableBtn").addEventListener("click", () => {
+            if (currentFilteredData.length === 0) {
+                showToast('No hay datos para exportar', 'warning');
+                return;
+            }
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const ws = XLSX.utils.json_to_sheet(currentFilteredData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Datos Filtrados");
+            XLSX.writeFile(wb, `Cubito_Lukers_Filtrados_${timestamp}.xlsx`);
+            showToast('Datos exportados correctamente');
+        });
+
+        // Tema oscuro/claro
         const themeToggleBtn = document.getElementById("toggle-theme");
+        
         function updateThemeIcon() {
             const icon = themeToggleBtn.querySelector("i");
             if (document.body.classList.contains("dark-mode")) {
@@ -1235,42 +1875,72 @@
                 icon.classList.add("fa-sun");
             }
         }
+
         themeToggleBtn.addEventListener("click", () => {
             document.body.classList.toggle("dark-mode");
             localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
             updateThemeIcon();
+            showToast(`Tema ${document.body.classList.contains("dark-mode") ? 'oscuro' : 'claro'} activado`);
         });
+
+        // Inicialización
         window.addEventListener("load", () => {
+            // Aplicar tema guardado
             if (localStorage.getItem("theme") === "dark") {
                 document.body.classList.add("dark-mode");
             }
             updateThemeIcon();
 
-            // Inicializar fecha actual DD.MM.AAAA
+            // Inicializar fecha actual
             const hoy = new Date();
-            const dia = String(hoy.getDate()).padStart(2, "0");
-            const mes = String(hoy.getMonth() + 1).padStart(2, "0");
-            const anio = hoy.getFullYear();
-            document.getElementById("fecha").value = `${dia}.${mes}.${anio}`;
-
+            document.getElementById("fecha").value = formatDate(hoy, "DD.MM.YYYY");
+            
             calcularFechasEntrega();
             
-            // Cambiar el color del texto del botón Volver a blanco
-            document.querySelector("#backBtn").style.color = "white";
+            // Mostrar mensaje de bienvenida
+            setTimeout(() => {
+                showToast('¡Bienvenido a CUBITO LUKERS! Carga tu archivo Excel para comenzar.');
+            }, 1000);
         });
 
-        // Limpieza tablas auxiliares
+        // Funciones de limpieza
         function clearSummaryTable() {
             const tbody = document.querySelector("#summaryTable tbody");
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay datos disponibles</td></tr>`;
-            document.getElementById("totalCantidad").textContent = "0";
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--gray-500); font-style: italic;">
+                <i class="fas fa-info-circle"></i> No hay datos disponibles
+            </td></tr>`;
+            document.getElementById("totalCantidad").innerHTML = "<strong>0</strong>";
         }
+
         function clearVerticalTable() {
             const verticalTable = document.getElementById("verticalTable");
-            verticalTable.innerHTML = `<thead><tr><th>No hay datos</th></tr></thead><tbody><tr><td>Procesa un archivo para ver datos</td></tr></tbody>`;
+            verticalTable.innerHTML = `
+                <thead><tr><th>No hay datos</th></tr></thead>
+                <tbody><tr><td style="text-align: center; color: var(--gray-500); font-style: italic;">
+                    <i class="fas fa-info-circle"></i> Procesa un archivo para ver datos
+                </td></tr></tbody>
+            `;
             document.getElementById("showVerticalBtn").disabled = true;
             document.getElementById("downloadVerticalBtn").disabled = true;
         }
+
+        // Manejo de errores global
+        window.addEventListener('error', function(e) {
+            console.error('Error:', e.error);
+            showToast('Ha ocurrido un error inesperado. Inténtelo de nuevo.', 'error');
+        });
+
+        // Atajos de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'o') {
+                e.preventDefault();
+                fileInput.click();
+            }
+            if (e.key === 'Escape') {
+                document.getElementById("verticalTableContainer").style.display = "none";
+                document.getElementById("societySelector").style.display = "none";
+            }
+        });
     </script>
 </body>
 </html>
