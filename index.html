@@ -952,6 +952,28 @@
             font-size: 1rem;
         }
 
+        /* Indicador de datos copiados */
+        .copy-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1300;
+            pointer-events: none;
+        }
+
+        .copy-indicator.show {
+            opacity: 1;
+        }
+
         /* Responsive mejorado */
         @media (max-width: 1024px) {
             main.container {
@@ -1043,6 +1065,16 @@
 
         .bounce {
             animation: bounce 1s ease-in-out;
+        }
+
+        /* Highlight para datos copiados */
+        .copy-highlight {
+            background: linear-gradient(135deg, var(--success-light) 0%, var(--primary-light) 100%);
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode .copy-highlight {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
         }
     </style>
 </head>
@@ -1221,8 +1253,8 @@
             <div class="modal-header">
                 <h2 id="verticalTableTitle"><i class="fas fa-table"></i> Datos Verticalizados</h2>
                 <div class="btn-group" style="margin: 0;">
-                    <button id="copyTableBtn" class="btn btn-outline" title="Copiar tabla al portapapeles" style="color: white; border-color: white;">
-                        <i class="fas fa-copy"></i> Copiar
+                    <button id="copyTableBtn" class="btn btn-outline" title="Copiar datos sin encabezados ni tiendas" style="color: white; border-color: white;">
+                        <i class="fas fa-copy"></i> Copiar Datos
                     </button>
                     <button id="exportTableBtn" class="btn btn-outline" title="Exportar tabla" style="color: white; border-color: white;">
                         <i class="fas fa-file-export"></i> Exportar
@@ -1277,6 +1309,11 @@
     <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <i class="fas fa-check-circle"></i>
         <span id="toastMessage">Operación completada con éxito</span>
+    </div>
+
+    <!-- Indicador de copia -->
+    <div class="copy-indicator" id="copyIndicator">
+        <i class="fas fa-check"></i> Datos copiados al portapapeles
     </div>
 
     <script>
@@ -1348,6 +1385,12 @@
             
             toast.classList.add("show");
             setTimeout(() => toast.classList.remove("show"), 4000);
+        }
+
+        function showCopyIndicator() {
+            const indicator = document.getElementById("copyIndicator");
+            indicator.classList.add("show");
+            setTimeout(() => indicator.classList.remove("show"), 2000);
         }
 
         function validarBotonProcesar() {
@@ -1803,7 +1846,7 @@
             }
         });
 
-        // Copiar tabla
+        // FUNCIÓN MEJORADA: Copiar tabla SIN encabezados y SIN primera columna (TIENDAS)
         document.getElementById("copyTableBtn").addEventListener("click", () => {
             const table = document.getElementById("verticalTable");
             if (!table || currentFilteredData.length === 0) {
@@ -1811,23 +1854,37 @@
                 return;
             }
 
-            let tableText = "";
-            const headers = Object.keys(currentFilteredData[0]);
-            tableText += headers.join("\t") + "\n";
-            
-            currentFilteredData.forEach(row => {
-                const values = headers.map(h => row[h]);
-                tableText += values.join("\t") + "\n";
-            });
-
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(tableText).then(() => {
-                    showToast("Tabla copiada al portapapeles");
-                }).catch(() => {
-                    fallbackCopyText(tableText);
+            try {
+                let tableText = "";
+                const headers = Object.keys(currentFilteredData[0]);
+                
+                // Excluir la primera columna (TIENDAS) - tomar desde el índice 1
+                const dataHeaders = headers.slice(1);
+                
+                // NO incluir los encabezados - solo los datos
+                currentFilteredData.forEach(row => {
+                    // Obtener valores excluyendo la primera columna (TIENDAS)
+                    const values = dataHeaders.map(h => row[h] || '');
+                    tableText += values.join("\t") + "\n";
                 });
-            } else {
-                fallbackCopyText(tableText);
+
+                // Resaltar tabla temporalmente
+                table.classList.add('copy-highlight');
+                setTimeout(() => table.classList.remove('copy-highlight'), 500);
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(tableText).then(() => {
+                        showToast("Datos copiados al portapapeles (sin encabezados ni tiendas)");
+                        showCopyIndicator();
+                    }).catch(() => {
+                        fallbackCopyText(tableText);
+                    });
+                } else {
+                    fallbackCopyText(tableText);
+                }
+            } catch (error) {
+                console.error('Error copying data:', error);
+                showToast('Error al copiar los datos', 'error');
             }
         });
 
@@ -1840,9 +1897,10 @@
             textArea.select();
             try {
                 document.execCommand("copy");
-                showToast("Tabla copiada al portapapeles");
+                showToast("Datos copiados al portapapeles (sin encabezados ni tiendas)");
+                showCopyIndicator();
             } catch (error) {
-                showToast('No se pudo copiar la tabla', 'error');
+                showToast('No se pudieron copiar los datos', 'error');
             }
             document.body.removeChild(textArea);
         }
@@ -1939,6 +1997,10 @@
             if (e.key === 'Escape') {
                 document.getElementById("verticalTableContainer").style.display = "none";
                 document.getElementById("societySelector").style.display = "none";
+            }
+            if (e.ctrlKey && e.key === 'c' && document.getElementById("verticalTableContainer").style.display === "block") {
+                e.preventDefault();
+                document.getElementById("copyTableBtn").click();
             }
         });
     </script>
